@@ -9,8 +9,8 @@
     <content src="index.html" />
     <preference name="Orientation" value="portrait" />
     <preference name="Fullscreen" value="false" />
-    <preference name="BackgroundColor" value="0xFF2E2E2E" />
-    <preference name="StatusBarBackgroundColor" value="0xFFA81226" />
+    <preference name="BackgroundColor" value="#FF2E2E2E" />
+    <preference name="StatusBarBackgroundColor" value="#FFA81226" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="AndroidExtraFilesystems" value="files,documents,external" />
     <platform name="android">
