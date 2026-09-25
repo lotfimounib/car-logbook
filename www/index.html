@@ -223,14 +223,20 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
   transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);
   z-index:101;padding-bottom:var(--safe-bottom)}
 .sheet.show{transform:translateY(0)}
-.sheet-handle{width:38px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 4px;flex-shrink:0}
-.sheet-header{padding:10px 20px 14px;display:flex;align-items:center;justify-content:space-between;
+.sheet-handle{width:54px;height:6px;background:var(--text-muted);border-radius:6px;
+  margin:14px auto 8px;flex-shrink:0;opacity:.35;cursor:grab;touch-action:none;
+  transition:opacity .15s,background .15s}
+.sheet-handle:active{opacity:.7;background:var(--primary);cursor:grabbing}
+.sheet-header{padding:6px 20px 14px;display:flex;align-items:center;justify-content:space-between;
   border-bottom:1px solid var(--border);flex-shrink:0}
 .sheet-title{font-size:16px;font-weight:900}
-.sheet-close{width:32px;height:32px;border-radius:50%;background:var(--surface-2);
-  display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:18px}
+.sheet-close{display:none !important}
 .sheet-body{padding:16px 20px 24px;overflow-y:auto;flex:1}
-.sheet-footer{padding:12px 20px 18px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap}
+.sheet-footer{padding:14px 20px 20px;border-top:1px solid var(--border);
+  display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap;
+  position:sticky;bottom:0;background:var(--surface);z-index:5;
+  box-shadow:0 -4px 12px rgba(0,0,0,.06)}
+.sheet-footer .btn{padding:14px 18px;font-size:14px}
 
 .toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 20px);left:50%;
   transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;
@@ -275,7 +281,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
   box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:transform .15s;position:relative}
 .ref-card:active{transform:scale(.96)}
 .ref-card.custom{border:1.5px dashed var(--primary)}
-.ref-card .custom-del{position:absolute;top:6px;left:6px;width:22px;height:22px;
+.ref-card .custom-del{position:absolute;top:6px;left:6px;width:26px;height:26px;
   border-radius:50%;background:#fee;color:var(--danger);font-size:12px;font-weight:900;
   display:flex;align-items:center;justify-content:center;z-index:2}
 .ref-icon{font-size:32px;line-height:1;margin-bottom:8px}
@@ -319,7 +325,28 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 .edit-list-item .del{width:26px;height:26px;border-radius:50%;background:#fee;
   color:var(--danger);font-size:15px;font-weight:900;flex-shrink:0;
   display:flex;align-items:center;justify-content:center}
-.edit-list-item .del:active{background:var(--danger);color:#fff}
+
+/* ============ LONG PRESS ============ */
+.lp-target{position:relative;overflow:hidden;touch-action:none;
+  user-select:none;-webkit-user-select:none;
+  transition:transform .12s,background .12s,color .12s}
+.lp-target.pressing{
+  transform:scale(1.5);
+  background:var(--danger) !important;
+  color:#fff !important;
+  box-shadow:0 0 0 4px rgba(239,68,68,.25);
+  animation:lpPulse .6s ease-in-out;
+}
+.lp-target.lp-done{
+  transform:scale(0.4);
+  opacity:0;
+  transition:transform .15s,opacity .15s;
+}
+@keyframes lpPulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.55)}
+  100%{transform:scale(1.5)}
+}
 
 .row{display:flex;align-items:center;gap:10px}
 .grow{flex:1;min-width:0}
@@ -333,12 +360,11 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 .info-box .ico{font-size:16px;flex-shrink:0;line-height:1.4}
 [data-theme="dark"] .info-box{color:#ffd9dd}
 
-/* IMAGE ATTACHMENTS */
 .img-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .img-thumb{width:72px;height:72px;border-radius:10px;object-fit:cover;
-  border:1.5px solid var(--border);background:var(--surface-2);position:relative;cursor:pointer}
+  border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer}
 .img-thumb-wrap{position:relative}
-.img-thumb-wrap .img-del{position:absolute;top:-6px;left:-6px;width:22px;height:22px;
+.img-thumb-wrap .img-del{position:absolute;top:-6px;left:-6px;width:24px;height:24px;
   border-radius:50%;background:var(--danger);color:#fff;font-size:12px;font-weight:900;
   display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)}
 .img-add-btn{width:72px;height:72px;border-radius:10px;border:2px dashed var(--primary);
@@ -346,7 +372,6 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
   align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
 .img-add-btn:active{transform:scale(.92)}
 
-/* LIGHTBOX */
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:300;
   display:none;align-items:center;justify-content:center;padding:20px}
 .lightbox.show{display:flex}
@@ -355,7 +380,6 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
   border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:22px;
   display:flex;align-items:center;justify-content:center}
 
-/* BACKUP BAR */
 .backup-bar{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);
   right:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;
   padding:8px 12px;font-size:11px;font-weight:800;color:var(--text-muted);
@@ -432,7 +456,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
       <div class="card">
         <div class="card-title"><span class="ttl">📊 تقرير PDF</span></div>
         <p style="font-size:12px;color:var(--text-muted);font-weight:600;margin:0 0 12px">
-          تقرير احترافي كامل يحتوي على: بيانات السيارة، المهام، السجلات، المصاريف، والصور.
+          تقرير احترافي كامل يحتوي على بيانات السيارة، المهام، السجلات، والصور.
         </p>
         <button class="btn btn-primary btn-full mb-8" id="btnReport">📄 إنشاء تقرير PDF</button>
         <button class="btn btn-outline btn-full" id="btnReportSummary">📋 تقرير مختصر</button>
@@ -501,7 +525,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 
       <div class="card">
         <div class="card-title"><span class="ttl">💾 البيانات</span></div>
-        <button class="btn btn-outline btn-full mb-8" id="btnExport">⬇️ تصدير JSON</button>
+        <button class="btn btn-primary btn-full mb-8" id="btnExport">📤 مشاركة نسخة</button>
         <button class="btn btn-outline btn-full mb-8" id="btnImport">⬆️ استيراد JSON</button>
         <button class="btn btn-danger btn-full" id="btnReset">↺ استعادة الافتراضي</button>
         <input type="file" id="importFile" accept="application/json" style="display:none">
@@ -511,7 +535,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
         <div class="card-title"><span class="ttl">ℹ️ حول</span></div>
         <div style="font-size:13px;color:var(--text-muted);line-height:1.8">
           <div style="font-weight:900;color:var(--text);font-size:14px">كتيّب صيانة السيارة</div>
-          الإصدار 3.0 · PDF · صور · إشعارات · نسخ احتياطي
+          الإصدار 3.2 · ضغطة مطولة + مشاركة
         </div>
       </div>
     </section>
@@ -530,10 +554,9 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 
 <div class="backdrop" id="backdrop"></div>
 <div class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
+  <div class="sheet-handle" id="sheetHandle"></div>
   <div class="sheet-header">
     <div class="sheet-title" id="sheetTitle">—</div>
-    <button class="sheet-close" id="sheetClose">✕</button>
   </div>
   <div class="sheet-body" id="sheetBody"></div>
   <div class="sheet-footer" id="sheetFooter"></div>
@@ -547,7 +570,6 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 const LS='car_logbook_v3';
 const THEME_KEY='car_logbook_theme';
 const BACKUP_KEY='car_logbook_backup_time';
-const NOTIF_BASE=900000;
 const GRID_SIZES={weeks:52,months:12,quarters:4,halves:2,annual:1};
 const PERIOD_DAYS={weeks:7,months:30,quarters:90,halves:180,annual:365};
 
@@ -604,7 +626,6 @@ const DEFAULT={
   tires:[{l:'الأمامي يمين (FR)',v:''},{l:'الأمامي يسار (FL)',v:''},{l:'الخلفي يمين (RR)',v:''},{l:'الخلفي يسار (RL)',v:''},{l:'الاحتياطي',v:''}],
   references:[]
 };
-/* fix images field */
 DEFAULT.fuel.forEach(r=>r.images=[]);
 DEFAULT.repairs.forEach(r=>r.images=[]);
 DEFAULT.rotations.forEach(r=>r.images=[]);
@@ -663,11 +684,55 @@ document.getElementById('themeBtn').addEventListener('click',()=>{
   toast(current==='dark'?'الوضع النهاري ☀️':'الوضع الليلي 🌙','ok');
 });
 document.querySelectorAll('#themeSeg button').forEach(b=>{
-  b.addEventListener('click',()=>{
-    setTheme(b.dataset.themeVal);
-    toast('تم التغيير ✓','ok');
-  });
+  b.addEventListener('click',()=>{setTheme(b.dataset.themeVal);toast('تم التغيير ✓','ok');});
 });
+
+/* ============ LONG PRESS HELPERS ============ */
+function bindLongPress(el, onComplete, duration){
+  duration=duration||600;
+  let timer=null, triggered=false;
+  const start=(e)=>{
+    if(e.cancelable && e.type!=='click')e.preventDefault();
+    triggered=false;
+    el.classList.add('pressing');
+    timer=setTimeout(()=>{
+      triggered=true;
+      el.classList.remove('pressing');
+      el.classList.add('lp-done');
+      if(navigator.vibrate)try{navigator.vibrate(30);}catch(err){}
+      setTimeout(()=>{el.classList.remove('lp-done');onComplete();},140);
+    },duration);
+  };
+  const cancel=()=>{
+    if(timer){clearTimeout(timer);timer=null;}
+    if(!triggered)el.classList.remove('pressing');
+  };
+  el.addEventListener('touchstart',start,{passive:false});
+  el.addEventListener('touchend',cancel);
+  el.addEventListener('touchcancel',cancel);
+  el.addEventListener('touchmove',cancel);
+  el.addEventListener('mousedown',start);
+  el.addEventListener('mouseup',cancel);
+  el.addEventListener('mouseleave',cancel);
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+}
+function bindAllLongPress(selector, handler){
+  document.querySelectorAll(selector).forEach(el=>{
+    if(el.dataset.lpBound)return;
+    el.dataset.lpBound='1';
+    el.classList.add('lp-target');
+    bindLongPress(el, ()=>handler(el));
+  });
+}
+function activateAllLongPress(){
+  const handler=(el)=>el.click();
+  bindAllLongPress('.edit-list-item .del', handler);
+  bindAllLongPress('.ri-del', handler);
+  bindAllLongPress('.rl-del', handler);
+  bindAllLongPress('.custom-del', handler);
+  bindAllLongPress('.img-del', handler);
+  bindAllLongPress('.del-btn', handler);
+}
 
 /* ============ REGENERATE ============ */
 function deriveIntervalKm(row){
@@ -719,6 +784,7 @@ function renderScreen(s){
   if(s==='logs')renderLogs();
   if(s==='ref')renderRef();
   if(s==='settings')hydrateSettings();
+  activateAllLongPress();
 }
 
 /* ============ HOME ============ */
@@ -809,6 +875,7 @@ function renderTasks(){
   c.querySelectorAll('[data-add]').forEach(el=>el.addEventListener('click',()=>{
     if(el.dataset.add==='distance')addDistanceRow();else addTimeRow();
   }));
+  activateAllLongPress();
 }
 function renderDistanceCard(row,i){
   const done=row.kms.filter(k=>k.done).length;
@@ -925,18 +992,21 @@ function openEditDistance(i){
       <button class="btn btn-ghost btn-sm btn-full" id="edAddTask">+ إضافة مهمة</button>
     </div>
     <div style="margin-top:16px">
-      <button class="btn btn-danger btn-sm btn-full" id="edDelete">🗑️ حذف هذه الدورية</button>
+      <button class="btn btn-danger btn-sm btn-full" id="edDelete">🗑️ حذف هذه الدورية (اضغط مطولاً)</button>
     </div>`;
   openSheet('تعديل الدورية',html,
     `<button class="btn btn-outline grow" onclick="closeSheet()">إلغاء</button>
      <button class="btn btn-primary grow" id="edSave">حفظ</button>`);
+  activateAllLongPress();
   document.getElementById('edAddTask').onclick=()=>{
     const el=document.getElementById('edTasks');const n=el.children.length;
     el.insertAdjacentHTML('beforeend',`<div class="edit-list-item">
       <input value="" data-task="${n}" placeholder="مهمة جديدة">
       <button class="del" data-deltask="${n}">✕</button>
     </div>`);
+    activateAllLongPress();
   };
+  bindAllLongPress('#edDelete',()=>{document.getElementById('edDelete').click();});
   document.getElementById('edDelete').onclick=()=>{
     if(!confirm('حذف هذه الدورية؟'))return;
     S.distance.splice(i,1);saveState();closeSheet();renderTasks();toast('تم الحذف','ok');
@@ -944,11 +1014,17 @@ function openEditDistance(i){
   document.getElementById('edSave').onclick=()=>{
     const r=S.distance[i];
     r.interval=document.getElementById('edInterval').value||'XX';
-    r.intervalKm=parseInt(document.getElementById('edIntervalKm').value)||10;
+    const newStep=parseInt(document.getElementById('edIntervalKm').value)||10;
+    const oldStep=deriveIntervalKm(r);
+    r.intervalKm=newStep;
     const newTasks=[];
     document.querySelectorAll('#edTasks [data-task]').forEach(inp=>{if(inp.value.trim())newTasks.push(inp.value.trim());});
     r.tasks=newTasks.length?newTasks:['مهمة'];
-    saveState();closeSheet();renderTasks();toast('تم الحفظ ✓','ok');
+    const changed=(newStep!==oldStep);
+    if(changed)regenerateKm(r);
+    saveState();closeSheet();renderTasks();renderHome();
+    if(typeof scheduleNotifications==='function')scheduleNotifications();
+    toast(changed?'تم الحفظ وإعادة توليد العلامات ✓':'تم الحفظ ✓','ok');
   };
   document.querySelectorAll('[data-deltask]').forEach(b=>b.onclick=()=>{
     S.distance[i].tasks.splice(Number(b.dataset.deltask),1);
@@ -978,11 +1054,12 @@ function openEditTime(i){
       <button class="btn btn-ghost btn-sm btn-full" id="etAddTask">+ إضافة مهمة</button>
     </div>
     <div style="margin-top:16px">
-      <button class="btn btn-danger btn-sm btn-full" id="etDelete">🗑️ حذف هذه الدورية</button>
+      <button class="btn btn-danger btn-sm btn-full" id="etDelete">🗑️ حذف هذه الدورية (اضغط مطولاً)</button>
     </div>`;
   openSheet('تعديل الدورية الزمنية',html,
     `<button class="btn btn-outline grow" onclick="closeSheet()">إلغاء</button>
      <button class="btn btn-primary grow" id="etSave">حفظ</button>`);
+  activateAllLongPress();
   document.getElementById('etAddTask').onclick=()=>{
     const el=document.getElementById('etTasks');const n=el.children.length;
     el.insertAdjacentHTML('beforeend',`<div class="edit-list-item">
@@ -990,7 +1067,9 @@ function openEditTime(i){
       <input value="" data-etname="${n}" style="flex:1" placeholder="مهمة جديدة">
       <button class="del" data-delt="${n}">✕</button>
     </div>`);
+    activateAllLongPress();
   };
+  bindAllLongPress('#etDelete',()=>{document.getElementById('etDelete').click();});
   document.getElementById('etDelete').onclick=()=>{
     if(!confirm('حذف هذه الدورية؟'))return;
     S.time.splice(i,1);saveState();closeSheet();renderTasks();toast('تم الحذف','ok');
@@ -1064,11 +1143,52 @@ function openSheet(title,body,footer){
   document.getElementById('sheetTitle').textContent=title;
   document.getElementById('sheetBody').innerHTML=body;
   document.getElementById('sheetFooter').innerHTML=footer||'';
+  document.getElementById('sheetBody').scrollTop=0;
+  sheet.style.transform='';
   sheet.classList.add('show');backdrop.classList.add('show');
 }
-function closeSheet(){sheet.classList.remove('show');backdrop.classList.remove('show');}
+function closeSheet(){
+  sheet.classList.remove('show');
+  backdrop.classList.remove('show');
+  sheet.style.transform='';
+  sheet.style.transition='';
+}
 backdrop.addEventListener('click',closeSheet);
-document.getElementById('sheetClose').addEventListener('click',closeSheet);
+
+/* Swipe-down to close */
+(function(){
+  let startY=0,currentY=0,isDragging=false;
+  function onStart(e){
+    const y=(e.touches&&e.touches[0])?e.touches[0].clientY:e.clientY;
+    startY=y;isDragging=true;
+    sheet.style.transition='none';
+  }
+  function onMove(e){
+    if(!isDragging)return;
+    const y=(e.touches&&e.touches[0])?e.touches[0].clientY:e.clientY;
+    currentY=Math.max(0,y-startY);
+    sheet.style.transform='translateY('+currentY+'px)';
+    if(e.cancelable&&currentY>5)e.preventDefault();
+  }
+  function onEnd(){
+    if(!isDragging)return;
+    isDragging=false;
+    sheet.style.transition='';
+    if(currentY>90){closeSheet();}
+    else{sheet.style.transform='';}
+    currentY=0;
+  }
+  document.addEventListener('touchstart',e=>{
+    if(e.target.closest('.sheet-handle'))onStart(e);
+  },{passive:true});
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchend',onEnd);
+  document.addEventListener('mousedown',e=>{
+    if(e.target.closest('.sheet-handle'))onStart(e);
+  });
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onEnd);
+})();
 
 /* ============ IMAGES ============ */
 function renderImages(images, attachKey){
@@ -1097,6 +1217,7 @@ function bindImageStrip(){
   document.querySelectorAll('[data-view]').forEach(img=>{
     img.onclick=()=>showLightbox(img.dataset.view);
   });
+  activateAllLongPress();
 }
 function getImageArray(key){
   const parts=key.split(':');
@@ -1154,7 +1275,7 @@ function openLogEntryByKey(key){
   if(parts[0]==='fuel'||parts[0]==='repairs'||parts[0]==='rotations'){
     openLogEntry(parts[0],Number(parts[1]));
   }else if(parts[0]==='catalog'){
-    openCatalog(Number(parts[1]));
+    openCatalog();
   }
 }
 function showLightbox(src){
@@ -1183,6 +1304,7 @@ function openLogEntry(coll,idx){
     `<button class="btn btn-outline grow" onclick="closeSheet()">إلغاء</button>
      <button class="btn btn-primary grow" id="saveEntry">حفظ</button>`);
   bindImageStrip();
+  activateAllLongPress();
   document.getElementById('saveEntry').onclick=()=>{
     document.querySelectorAll('#sheetBody [data-k]').forEach(inp=>{r[inp.dataset.k]=inp.value;});
     saveState();closeSheet();renderScreen('logs');toast('تم الحفظ ✓','ok');
@@ -1243,6 +1365,7 @@ function renderRef(){
     }
   }));
   grid.querySelector('[data-add-ref]').addEventListener('click',()=>openCustomRef(-1));
+  activateAllLongPress();
 }
 function openFixedRef(type){
   if(type==='catalog')return openCatalog();
@@ -1254,8 +1377,8 @@ function openFixedRef(type){
   if(type==='tires')return openTires();
 }
 
-/* ---- CATALOG (with images) ---- */
-function openCatalog(focusIdx){
+/* ---- CATALOG ---- */
+function openCatalog(){
   const render=()=>S.catalog.map((c,i)=>`
     <div class="ref-item">
       <div class="ref-item-head">
@@ -1279,7 +1402,7 @@ function openCatalog(focusIdx){
     </div>`).join('') + `<button class="btn-add" data-cat-add="1">+ إضافة مجموعة جديدة</button>`;
   openSheet('📋 كتالوج القطع',`<div id="catWrap">${render()}</div>`,
     `<button class="btn btn-primary grow" id="catSave">حفظ وإغلاق</button>`);
-  bindCatalog();bindImageStrip();
+  bindCatalog();bindImageStrip();activateAllLongPress();
   document.getElementById('catSave').onclick=()=>{commitCatalog();saveState();closeSheet();toast('تم الحفظ ✓','ok');};
 }
 function bindCatalog(){
@@ -1289,13 +1412,11 @@ function bindCatalog(){
     if(confirm(`حذف "${S.catalog[i].title}"؟`)){S.catalog.splice(i,1);saveState();openCatalog();toast('تم الحذف','ok');}
   });
   wrap.querySelectorAll('[data-cl-add]').forEach(b=>b.onclick=()=>{
-    commitCatalog();
-    S.catalog[Number(b.dataset.clAdd)].lines.push({l:'حقل جديد',v:''});
+    commitCatalog();S.catalog[Number(b.dataset.clAdd)].lines.push({l:'حقل جديد',v:''});
     saveState();openCatalog();
   });
   wrap.querySelectorAll('[data-cl-del]').forEach(b=>b.onclick=()=>{
-    commitCatalog();
-    const [i,j]=b.dataset.clDel.split('-').map(Number);
+    commitCatalog();const [i,j]=b.dataset.clDel.split('-').map(Number);
     S.catalog[i].lines.splice(j,1);saveState();openCatalog();
   });
   wrap.querySelector('[data-cat-add]').onclick=()=>{
@@ -1333,7 +1454,7 @@ function openWorkshops(){
     </div>`).join('') + `<button class="btn-add" data-wk-add="1">+ إضافة جهة جديدة</button>`;
   openSheet('🏢 دليل الورش',`<div id="wkWrap">${render()}</div>`,
     `<button class="btn btn-primary grow" id="wkSave">حفظ وإغلاق</button>`);
-  bindWorkshops();
+  bindWorkshops();activateAllLongPress();
   document.getElementById('wkSave').onclick=()=>{commitWorkshops();saveState();closeSheet();toast('تم الحفظ ✓','ok');};
 }
 function bindWorkshops(){
@@ -1384,7 +1505,7 @@ function openWarranty(){
     </div>`).join('') + `<button class="btn-add" data-wr-add="1">+ إضافة ضمان</button>`;
   openSheet('🛡️ الضمانات',`<div id="wrWrap">${render()}</div>`,
     `<button class="btn btn-primary grow" id="wrSave">حفظ وإغلاق</button>`);
-  bindWarranty();
+  bindWarranty();activateAllLongPress();
   document.getElementById('wrSave').onclick=()=>{commitWarranty();saveState();closeSheet();toast('تم الحفظ ✓','ok');};
 }
 function bindWarranty(){
@@ -1425,7 +1546,7 @@ function openDocs(){
     </div>`).join('') + `<button class="btn-add" data-dc-add="1">+ إضافة وثيقة</button>`;
   openSheet('📄 الوثائق الرسمية',`<div id="dcWrap">${render()}</div>`,
     `<button class="btn btn-primary grow" id="dcSave">حفظ وإغلاق</button>`);
-  bindDocs();
+  bindDocs();activateAllLongPress();
   document.getElementById('dcSave').onclick=()=>{commitDocs();saveState();closeSheet();toast('تم الحفظ ✓','ok');};
 }
 function bindDocs(){
@@ -1457,7 +1578,7 @@ function openEmergency(){
     </div>`).join('') + `<button class="ref-add-line" data-em-add="1">+ إضافة رقم</button>`;
   openSheet('🚨 أرقام الطوارئ',`<div id="emWrap">${render()}</div>`,
     `<button class="btn btn-primary grow" id="emSave">حفظ وإغلاق</button>`);
-  bindEmergency();
+  bindEmergency();activateAllLongPress();
   document.getElementById('emSave').onclick=()=>{commitEmergency();saveState();closeSheet();toast('تم الحفظ ✓','ok');};
 }
 function bindEmergency(){
@@ -1492,7 +1613,7 @@ function openWarnings(){
     </div>`).join('') + `<button class="btn-add" data-wn-add="1">+ إضافة علامة تحذير</button>`;
   openSheet('⚠️ علامات التحذير',`<div id="wnWrap">${render()}</div>`,
     `<button class="btn btn-primary grow" id="wnSave">حفظ وإغلاق</button>`);
-  bindWarnings();
+  bindWarnings();activateAllLongPress();
   document.getElementById('wnSave').onclick=()=>{commitWarnings();saveState();closeSheet();toast('تم الحفظ ✓','ok');};
 }
 function bindWarnings(){
@@ -1521,7 +1642,7 @@ function openTires(){
     </div>`).join('') + `<button class="ref-add-line" data-t-add="1">+ إضافة إطار</button>`;
   openSheet('💨 ضغط الإطارات (PSI)',`<div id="tWrap">${render()}</div>`,
     `<button class="btn btn-primary grow" id="tSave">حفظ وإغلاق</button>`);
-  bindTires();
+  bindTires();activateAllLongPress();
   document.getElementById('tSave').onclick=()=>{commitTires();saveState();closeSheet();toast('تم الحفظ ✓','ok');};
 }
 function bindTires(){
@@ -1561,9 +1682,10 @@ function openCustomRef(i){
       <button class="btn btn-ghost btn-sm btn-full" id="crAddField">+ إضافة حقل</button>
     </div>`;
   openSheet(isNew?'إضافة مرجع جديد':'تعديل المرجع',render(),
-    `${!isNew?`<button class="btn btn-danger" id="crDelete">🗑️</button>`:''}
+    `${!isNew?`<button class="btn btn-danger" id="crDelete">🗑️ حذف (مطول)</button>`:''}
      <button class="btn btn-outline grow" onclick="closeSheet()">إلغاء</button>
      <button class="btn btn-primary grow" id="crSave">حفظ</button>`);
+  activateAllLongPress();
   document.getElementById('crAddField').onclick=()=>{
     const el=document.getElementById('crFields');const n=el.children.length;
     el.insertAdjacentHTML('beforeend',`<div class="edit-list-item">
@@ -1571,7 +1693,7 @@ function openCustomRef(i){
       <input value="" data-crv="${n}" placeholder="القيمة" style="flex:1">
       <button class="del" data-delc="${n}">✕</button>
     </div>`);
-    document.querySelectorAll('[data-delc]').forEach(b=>b.onclick=()=>{b.parentElement.remove();});
+    activateAllLongPress();
   };
   document.querySelectorAll('[data-delc]').forEach(b=>b.onclick=()=>{b.parentElement.remove();});
   document.getElementById('crSave').onclick=()=>{
@@ -1592,6 +1714,7 @@ function openCustomRef(i){
     saveState();closeSheet();renderRef();toast('تم الحفظ ✓','ok');
   };
   if(!isNew){
+    bindAllLongPress('#crDelete',()=>{document.getElementById('crDelete').click();});
     document.getElementById('crDelete').onclick=()=>{
       if(confirm('حذف هذا المرجع؟')){S.references.splice(i,1);saveState();closeSheet();renderRef();toast('تم الحذف','ok');}
     };
@@ -1641,7 +1764,6 @@ function generateHTML(summaryOnly){
   const fuelTotal=fuelItems.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
   const repairTotal=repairItems.reduce((s,r)=>s+(parseFloat(r.cost)||0),0);
   const km=(parseKm(S.currentKm)||0);
-  const photoCount=[...S.fuel,...S.repairs,...S.catalog].reduce((s,x)=>s+((x.images||[]).length),0);
 
   const css=`
     <style>
@@ -1670,20 +1792,18 @@ function generateHTML(summaryOnly){
       .photos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
       .photos img{width:100%;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e8ef}
       .footer{margin-top:30px;padding-top:12px;border-top:1px solid #cbd5e0;font-size:10px;color:#64748b;text-align:center}
-      .badge{display:inline-block;background:#c8102e;color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:900}
+      .section{padding:10px;background:#f8f9fc;border-radius:8px;margin-bottom:10px}
       .muted{color:#64748b;font-size:10px;font-weight:700}
       ul{padding:0;margin:0;list-style:none}
       ul li{padding:3px 0;font-size:11px;font-weight:600}
       ul li::before{content:'▪ ';color:#c8102e;font-weight:900}
-      .section{padding:10px;background:#f8f9fc;border-radius:8px;margin-bottom:10px}
-      .warn{background:#fdeef1;color:#8a0b1f;padding:8px 12px;border-radius:6px;font-weight:700;font-size:11px}
     </style>`;
   const headerHtml=`
     <div class="header">
       <div class="header-left">
         <h1>كتيّب السيارة</h1>
         <p>تقرير صيانة · ${fmtDate(now)}</p>
-        <p>الإصدار 3.0</p>
+        <p>الإصدار 3.2</p>
       </div>
       <div class="logo">🚗</div>
     </div>`;
@@ -1707,7 +1827,6 @@ function generateHTML(summaryOnly){
       <div class="stat"><div class="stat-v">${fmtNum(repairTotal)}</div><div class="stat-l">مصروف الإصلاح</div></div>
       <div class="stat"><div class="stat-v">${fmtNum(fuelTotal+repairTotal)}</div><div class="stat-l">المجموع الكلي</div></div>
     </div>`;
-
   let body=`${headerHtml}${carMeta}${statsHtml}`;
 
   if(!summaryOnly){
@@ -1728,7 +1847,6 @@ function generateHTML(summaryOnly){
       });
       body+='</tbody></table>';
     }
-
     if(fuelItems.length){
       body+=`<h2>⛽ سجل الوقود</h2><table><thead><tr><th>التاريخ</th><th>العداد</th><th>لترات</th><th>المبلغ</th><th>كم/لتر</th></tr></thead><tbody>`;
       fuelItems.forEach(r=>{
@@ -1750,7 +1868,6 @@ function generateHTML(summaryOnly){
       });
       body+='</tbody></table>';
     }
-
     const allImages=[];
     [...S.fuel,...S.repairs,...S.rotations].forEach(x=>(x.images||[]).forEach(src=>allImages.push(src)));
     S.catalog.forEach(c=>(c.images||[]).forEach(src=>allImages.push(src)));
@@ -1760,7 +1877,6 @@ function generateHTML(summaryOnly){
       body+='</div>';
       if(allImages.length>20)body+=`<p class="muted" style="margin-top:6px">+ ${allImages.length-20} صورة إضافية</p>`;
     }
-
     if(S.catalog.length){
       body+=`<h2>📋 كتالوج القطع</h2>`;
       S.catalog.forEach(c=>{
@@ -1772,29 +1888,21 @@ function generateHTML(summaryOnly){
       });
     }
   }
-
   body+=`<div class="footer">تم إنشاء هذا التقرير بواسطة تطبيق «كتيّب السيارة» · ${fmtDate(now)} · ${esc(S.meta.owner||'')}</div>`;
   return `<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8">${css}</head><body>${body}</body></html>`;
 }
-
 function exportPDF(summaryOnly){
   const html=generateHTML(summaryOnly);
-  // Try native printer first
   if(window.cordova && window.cordova.plugins && window.cordova.plugins.printer){
-    window.cordova.plugins.printer.print(html, {name:'car-logbook-'+todayIso()+'.pdf', landscape:false, graystyle:false, fontPath:false, duplex:false}, (done)=>{
-      if(done===null)toast('تعذّر الطباعة','err');
-    });
+    window.cordova.plugins.printer.print(html, {name:'car-logbook-'+todayIso()+'.pdf', landscape:false});
     return;
   }
-  // Fallback: open HTML in new window and print
   const w=window.open('', '_blank');
-  if(!w){toast('المتصفح منع النافذة — فعّل النوافذ المنبثقة','err');return;}
-  w.document.write(html);
-  w.document.close();
-  setTimeout(()=>{w.focus();w.print();}, 500);
-  toast('اختر "حفظ كـ PDF" من قائمة الطباعة','ok');
+  if(!w){toast('فعّل النوافذ المنبثقة','err');return;}
+  w.document.write(html);w.document.close();
+  setTimeout(()=>{w.focus();w.print();},500);
+  toast('اختر "حفظ كـ PDF"','ok');
 }
-
 document.getElementById('btnReport').onclick=()=>exportPDF(false);
 document.getElementById('btnReportSummary').onclick=()=>exportPDF(true);
 
@@ -1813,23 +1921,21 @@ document.getElementById('btnNotifTest').onclick=()=>{
   if(!hasNotif()){toast('الإشعارات تحتاج التطبيق','warn');return;}
   cordova.plugins.notification.local.schedule({
     id:900001, title:'كتيّب السيارة',
-    text:'هذا إشعار تجريبي — الإشعارات تعمل ✓',
+    text:'إشعار تجريبي — الإشعارات تعمل ✓',
     foreground:true, trigger:{in:3000}
   });
-  toast('سيصل الإشعار خلال 3 ثوان','ok');
+  toast('سيصل خلال 3 ثوان','ok');
 };
 document.getElementById('btnNotifClear').onclick=()=>{
   if(!hasNotif()){toast('يتطلب التطبيق','warn');return;}
-  cordova.plugins.notification.local.cancelAll(()=>toast('تم إلغاء كل الإشعارات','ok'));
+  cordova.plugins.notification.local.cancelAll(()=>toast('تم الإلغاء','ok'));
 };
-
 function scheduleNotifications(){
   if(!hasNotif())return;
   cordova.plugins.notification.local.cancelAll(()=>{
     const {byKm,byTime}=computeUpcoming();
     const today=new Date();
     let id=1000;
-    // Urgent km tasks (within 1000km or overdue)
     byKm.forEach(t=>{
       if(t.remaining<1000){
         const fireDate=new Date(today.getTime()+24*3600*1000);
@@ -1841,7 +1947,6 @@ function scheduleNotifications(){
         });
       }
     });
-    // Urgent time tasks
     byTime.forEach(t=>{
       if(t.daysLeft<=3){
         const fireDate=new Date(today.getTime()+24*3600*1000);
@@ -1858,9 +1963,7 @@ function scheduleNotifications(){
 if(typeof cordova!=='undefined'){
   document.addEventListener('deviceready',()=>{
     if(hasNotif()){
-      cordova.plugins.notification.local.on('click',(notif)=>{
-        go('home');
-      });
+      cordova.plugins.notification.local.on('click',()=>go('home'));
     }
     scheduleNotifications();
   }, false);
@@ -1869,21 +1972,19 @@ if(typeof cordova!=='undefined'){
 /* ============ AUTO BACKUP ============ */
 async function pickBackupFolder(){
   if(typeof window.showDirectoryPicker!=='function'){
-    // Cordova fallback: use Documents folder
     if(typeof cordova!=='undefined'&&cordova.file){
       S.config.backupFolder='__cordova_documents__';
       saveState();updateBackupInfo();
       toast('سيتم الحفظ في مجلد Documents','ok');
       return;
     }
-    toast('اختيار المجلد غير مدعوم — سيتم الحفظ في التنزيلات','warn');
+    toast('اختيار المجلد غير مدعوم','warn');
     return;
   }
   try{
     const dir=await window.showDirectoryPicker({mode:'readwrite'});
     S.config.backupFolder=dir.name;
     window.__backupDirHandle=dir;
-    // save handle to indexedDB for later
     await saveHandleToIDB(dir);
     saveState();updateBackupInfo();
     toast('تم اختيار المجلد ✓','ok');
@@ -1894,7 +1995,7 @@ async function pickBackupFolder(){
 function saveHandleToIDB(handle){
   return new Promise((res)=>{
     const req=indexedDB.open('car_logbook_fs',1);
-    req.onupgradeneeded=()=>{req.result.createObjectStore('handles');};
+    req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('handles'))req.result.createObjectStore('handles');};
     req.onsuccess=()=>{
       const tx=req.result.transaction('handles','readwrite');
       tx.objectStore('handles').put(handle,'backup');
@@ -1921,14 +2022,12 @@ document.getElementById('btnPickBackup').onclick=pickBackupFolder;
 async function doBackup(){
   const data=JSON.stringify(S,null,2);
   const fname='car-logbook-backup-'+todayIso()+'.json';
-  // Cordova path
   if(typeof cordova!=='undefined'&&cordova.file){
     try{
       const dir=S.config.backupFolder==='__cordova_documents__'
         ? cordova.file.externalRootDirectory+'Documents/'
         : cordova.file.externalDataDirectory;
-      const path=dir;
-      window.resolveLocalFileSystemURL(path,dirEntry=>{
+      window.resolveLocalFileSystemURL(dir,dirEntry=>{
         dirEntry.getFile(fname,{create:true},fe=>{
           fe.createWriter(w=>{
             w.onwriteend=()=>{
@@ -1938,11 +2037,10 @@ async function doBackup(){
             w.write(new Blob([data],{type:'application/json'}));
           });
         },()=>toast('تعذّر النسخ','err'));
-      },()=>toast('تعذّر الوصول للمجلد','err'));
+      },()=>toast('تعذّر الوصول','err'));
       return;
-    }catch(e){/* fall through */}
+    }catch(e){}
   }
-  // Browser File System Access API
   let handle=window.__backupDirHandle;
   if(!handle){handle=await loadHandleFromIDB();if(handle)window.__backupDirHandle=handle;}
   if(handle){
@@ -1950,7 +2048,7 @@ async function doBackup(){
       const perm=await handle.queryPermission({mode:'readwrite'});
       if(perm!=='granted'){
         const req=await handle.requestPermission({mode:'readwrite'});
-        if(req!=='granted'){toast('لا يوجد إذن للمجلد','warn');return;}
+        if(req!=='granted'){toast('لا يوجد إذن','warn');return;}
       }
       const fh=await handle.getFileHandle(fname,{create:true});
       const w=await fh.createWritable();
@@ -1958,16 +2056,15 @@ async function doBackup(){
       localStorage.setItem(BACKUP_KEY,Date.now());
       updateBackupInfo();toast('تم النسخ الاحتياطي ✓','ok');
       return;
-    }catch(e){console.warn(e);}
+    }catch(e){}
   }
-  // Fallback: download
   const blob=new Blob([data],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download=fname;a.click();
   URL.revokeObjectURL(a.href);
   localStorage.setItem(BACKUP_KEY,Date.now());
   updateBackupInfo();
-  toast('تم تنزيل النسخة الاحتياطية','ok');
+  toast('تم تنزيل النسخة','ok');
 }
 document.getElementById('btnBackupNow').onclick=doBackup;
 
@@ -1997,17 +2094,38 @@ function updateBackupInfo(){
     if(bar){bar.style.display='flex';bar.classList.add('stale');}
   }
 }
-// Auto backup every 6 hours
 setInterval(()=>{
   const last=Number(localStorage.getItem(BACKUP_KEY)||0);
   if(Date.now()-last>6*3600*1000){doBackup();}
 },3600*1000);
 
 /* ============ EXPORT/IMPORT/RESET ============ */
-function exportJSON(){
-  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+async function exportJSON(){
+  const json=JSON.stringify(S,null,2);
+  const fileName='car-logbook-'+todayIso()+'.json';
+  if(navigator.share){
+    try{
+      if(navigator.canShare){
+        try{
+          const file=new File([json],fileName,{type:'application/json'});
+          if(navigator.canShare({files:[file]})){
+            await navigator.share({files:[file],title:'كتيّب السيارة'});
+            toast('تمت المشاركة ✓','ok');
+            return;
+          }
+        }catch(fe){console.warn('file share failed',fe);}
+      }
+      await navigator.share({title:'كتيّب السيارة — نسخة احتياطية',text:json});
+      toast('تمت المشاركة ✓','ok');
+      return;
+    }catch(e){
+      if(e.name==='AbortError')return;
+      console.warn('share failed',e);
+    }
+  }
+  const blob=new Blob([json],{type:'application/json'});
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download='car-logbook-'+todayIso()+'.json';
+  a.href=URL.createObjectURL(blob);a.download=fileName;
   a.click();URL.revokeObjectURL(a.href);
   toast('تم التصدير ✓','ok');
 }
@@ -2089,18 +2207,19 @@ regenerateAll();
 renderScreen('home');
 updateBackupInfo();
 
+/* Long press activation loop — keeps buttons bindable after every render */
+setInterval(activateAllLongPress, 500);
+
 if(typeof cordova!=='undefined'){
   document.addEventListener('deviceready',()=>{
     renderScreen('home');
     scheduleNotifications();
-    // Try restore backup handle
     loadHandleFromIDB().then(h=>{if(h)window.__backupDirHandle=h;});
   }, false);
 }else{
   loadHandleFromIDB().then(h=>{if(h)window.__backupDirHandle=h;});
 }
 
-// Restore theme on auto
 setInterval(()=>{if(currentTheme==='auto')applyTheme();},60000);
 </script>
 </body>
