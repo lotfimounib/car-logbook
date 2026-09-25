@@ -2129,31 +2129,84 @@ setInterval(()=>{
 },3600*1000);
 
 /* ============ EXPORT/IMPORT/RESET ============ */
-function exportJSON(){
+async function exportJSON(){
   const json=JSON.stringify(S,null,2);
   const fileName='car-logbook-'+todayIso()+'.json';
-  /* Cordova: احفظ في مجلد Documents */
+
+  /* 1) على أندرويد: احفظ في مجلد التطبيق (يعمل دائماً) ثم اعرض قائمة المشاركة */
   if(typeof cordova!=='undefined' && cordova.file){
-    try{
-      const dir=cordova.file.externalRootDirectory+'Documents/';
-      window.resolveLocalFileSystemURL(dir,dirEntry=>{
-        dirEntry.getFile(fileName,{create:true},fe=>{
-          fe.createWriter(w=>{
-            w.onwriteend=()=>toast('تم الحفظ في Documents/'+fileName,'ok');
-            w.onerror=()=>toast('فشل الكتابة','err');
-            w.write(new Blob([json],{type:'application/json'}));
+    const dir = cordova.file.externalDataDirectory || cordova.file.dataDirectory;
+    return new Promise((resolve)=>{
+      window.resolveLocalFileSystemURL(dir, function(dirEntry){
+        dirEntry.getFile(fileName, {create:true}, function(fileEntry){
+          fileEntry.createWriter(function(writer){
+            writer.onwriteend = function(){
+              const nativePath = fileEntry.nativeURL || fileEntry.toURL();
+              console.log('Saved to:', nativePath);
+              /* حاول المشاركة (Web Share API) */
+              shareSavedFile(json, fileName, nativePath);
+              resolve();
+            };
+            writer.onerror = function(e){
+              console.warn('write failed', e);
+              toast('تعذّر الحفظ — سيتم التنزيل','warn');
+              downloadFile(json, fileName);
+              resolve();
+            };
+            writer.write(new Blob([json], {type:'application/json'}));
           });
-        },()=>toast('تعذّر إنشاء الملف','err'));
-      },()=>{
-        /* fallback: تنزيل عادي */
-        downloadFile(json,fileName);
+        }, function(err){
+          console.warn('getFile failed', err);
+          downloadFile(json, fileName);
+          resolve();
+        });
+      }, function(err){
+        console.warn('resolve failed', err);
+        downloadFile(json, fileName);
+        resolve();
       });
-      return;
-    }catch(e){
-      console.warn('cordova export failed',e);
-    }
+    });
   }
-  downloadFile(json,fileName);
+  /* 2) على المتصفح: تنزيل عادي */
+  downloadFile(json, fileName);
+}
+
+function shareSavedFile(json, fileName, savedPath){
+  const blob = new Blob([json], {type:'application/json'});
+  const file = new File([blob], fileName, {type:'application/json'});
+
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({
+      files: [file],
+      title: 'كتيّب السيارة',
+      text: 'نسخة احتياطية'
+    })
+    .then(()=>toast('تمت المشاركة ✓','ok'))
+    .catch((err)=>{
+      if(err.name === 'AbortError') return;
+      console.warn('share failed', err);
+      showSavedPath(savedPath);
+    });
+  } else {
+    /* Web Share غير مدعوم — عرض المسار + سؤال للتنزيل */
+    showSavedPath(savedPath, json, fileName);
+  }
+}
+
+function showSavedPath(savedPath, json, fileName){
+  const short = savedPath.replace('file://','');
+  if(json){
+    setTimeout(()=>{
+      if(confirm('تم حفظ الملف في:\n\n' + short + '\n\nهل تريد فتحه أو مشاركته؟')){
+        /* محاولة مشاركة بسيطة أو تنزيل */
+        downloadFile(json, fileName);
+      } else {
+        toast('الملف محفوظ ✓','ok');
+      }
+    }, 500);
+  } else {
+    toast('حُفظ في التطبيق','ok');
+  }
 }
 function downloadFile(json,fileName){
   const blob=new Blob([json],{type:'application/json'});
