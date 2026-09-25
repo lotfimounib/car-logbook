@@ -539,7 +539,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
         <div class="card-title"><span class="ttl">ℹ️ حول</span></div>
         <div style="font-size:13px;color:var(--text-muted);line-height:1.8">
           <div style="font-weight:900;color:var(--text);font-size:14px">كتيّب صيانة السيارة</div>
-          الإصدار 3.5 · تصدير + مشاركة
+          الإصدار 3.6 · تصدير + مشاركة أصلية
         </div>
       </div>
     </section>
@@ -1831,7 +1831,7 @@ function generateHTML(summaryOnly){
       <div class="header-left">
         <h1>كتيّب السيارة</h1>
         <p>تقرير صيانة · ${fmtDate(now)}</p>
-        <p>الإصدار 3.5</p>
+        <p>الإصدار 3.6</p>
       </div>
       <div class="logo">🚗</div>
     </div>`;
@@ -2123,11 +2123,11 @@ setInterval(()=>{
 
 /* ============ EXPORT / SHARE ============ */
 async function exportJSON(){
-  const json=JSON.stringify(S,null,2);
-  const fileName='car-logbook-'+todayIso()+'.json';
+  const json = JSON.stringify(S, null, 2);
+  const fileName = 'car-logbook-' + todayIso() + '.json';
 
-  /* 1) على أندرويد: احفظ في مجلد التطبيق ثم اعرض قائمة المشاركة */
-  if(typeof cordova!=='undefined' && cordova.file){
+  // 1) على أندرويد: احفظ ثم اعرض قائمة المشاركة الأصلية
+  if(typeof cordova !== 'undefined' && cordova.file){
     const dir = cordova.file.externalDataDirectory || cordova.file.dataDirectory;
     return new Promise((resolve)=>{
       window.resolveLocalFileSystemURL(dir, function(dirEntry){
@@ -2136,81 +2136,106 @@ async function exportJSON(){
             writer.onwriteend = function(){
               const nativePath = fileEntry.nativeURL || fileEntry.toURL();
               console.log('Saved to:', nativePath);
-              /* حاول المشاركة عبر Web Share API */
-              shareSavedFile(json, fileName, nativePath);
+              openShareDialog(json, fileName, nativePath);
               resolve();
             };
             writer.onerror = function(e){
               console.warn('write failed', e);
-              toast('تعذّر الحفظ — سيتم التنزيل','warn');
-              downloadFile(json, fileName);
+              toast('تعذّر الحفظ','err');
               resolve();
             };
             writer.write(new Blob([json], {type:'application/json'}));
           });
         }, function(err){
           console.warn('getFile failed', err);
-          downloadFile(json, fileName);
+          toast('تعذّر إنشاء الملف','err');
           resolve();
         });
       }, function(err){
         console.warn('resolve failed', err);
-        downloadFile(json, fileName);
+        toast('تعذّر الوصول للمجلد','err');
         resolve();
       });
     });
   }
-  /* 2) على المتصفح: نشارك أو ننزّل */
-  shareSavedFile(json, fileName, '');
-}
 
-function shareSavedFile(json, fileName, savedPath){
-  const blob = new Blob([json], {type:'application/json'});
-  const file = new File([blob], fileName, {type:'application/json'});
-
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-    navigator.share({
-      files: [file],
-      title: 'كتيّب السيارة',
-      text: 'نسخة احتياطية'
-    })
-    .then(()=>toast('تمت المشاركة ✓','ok'))
-    .catch((err)=>{
-      if(err.name === 'AbortError')return;
-      console.warn('share failed', err);
-      downloadFile(json, fileName);
-    });
-  } else if(navigator.share){
-    navigator.share({
-      title: 'كتيّب السيارة',
-      text: json
-    }).then(()=>toast('تمت المشاركة ✓','ok'))
-    .catch((err)=>{
-      if(err.name === 'AbortError')return;
-      downloadFile(json, fileName);
-    });
-  } else {
-    /* لا يوجد Web Share — نزّل الملف */
-    downloadFile(json, fileName);
-    if(savedPath){
-      const short = savedPath.replace('file://','');
-      setTimeout(()=>{
-        toast('الملف محفوظ ✓','ok');
-      }, 500);
+  // 2) على المتصفح: Web Share أو تنزيل
+  if(navigator.share && navigator.canShare){
+    try{
+      const file = new File([json], fileName, {type:'application/json'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'كتيّب السيارة'});
+        toast('تمت المشاركة ✓','ok');
+        return;
+      }
+    }catch(e){
+      if(e.name==='AbortError') return;
     }
   }
+  downloadFile(json, fileName);
+}
+
+function openShareDialog(json, fileName, nativePath){
+  const ss = window.plugins && window.plugins.socialsharing;
+  if(ss && ss.shareWithOptions){
+    try{
+      ss.shareWithOptions({
+        message: 'نسخة احتياطية من كتيّب السيارة — ' + fmtDate(new Date()),
+        subject: 'كتيّب السيارة',
+        files: [nativePath]
+      },
+      function(result){
+        console.log('Shared:', result);
+        toast('تمت المشاركة ✓','ok');
+      },
+      function(err){
+        console.warn('share error', err);
+        showSavedPathDialog(json, fileName, nativePath);
+      });
+      return;
+    }catch(e){
+      console.warn('socialsharing failed', e);
+    }
+  }
+  showSavedPathDialog(json, fileName, nativePath);
+}
+
+function showSavedPathDialog(json, fileName, nativePath){
+  const short = (nativePath||'').replace('file://','');
+  openSheet('✅ تم حفظ الملف',
+    `<div style="text-align:center;padding:10px 0">
+      <div style="font-size:64px;margin-bottom:16px">💾</div>
+      <p style="font-size:14px;font-weight:800;color:var(--text);margin:0 0 12px">الملف جاهز</p>
+      <div style="background:var(--surface-2);padding:12px;border-radius:10px;
+                  font-size:11px;color:var(--text-muted);font-weight:700;
+                  word-break:break-all;line-height:1.6;text-align:left;direction:ltr">
+        ${esc(short || 'app-private-storage')}
+      </div>
+    </div>`,
+    `<button class="btn btn-outline grow" onclick="closeSheet()">إغلاق</button>
+     <button class="btn btn-primary grow" id="shareAgainBtn">📤 مشاركة</button>`);
+  document.getElementById('shareAgainBtn').onclick = ()=>{
+    closeSheet();
+    const ss = window.plugins && window.plugins.socialsharing;
+    if(ss && ss.shareWithOptions){
+      ss.shareWithOptions({files:[nativePath]}, null, null);
+    } else {
+      toast('المشاركة غير متوفرة','warn');
+    }
+  };
 }
 
 function downloadFile(json, fileName){
-  const blob=new Blob([json],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=fileName;
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  toast('تم تصدير الملف ✓','ok');
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  toast('تم التصدير ✓','ok');
 }
 
 document.getElementById('btnExport').addEventListener('click',exportJSON);
