@@ -2122,11 +2122,12 @@ setInterval(()=>{
 },3600*1000);
 
 /* ============ EXPORT / SHARE ============ */
+/* ============ EXPORT / SHARE ============ */
 async function exportJSON(){
   const json = JSON.stringify(S, null, 2);
   const fileName = 'car-logbook-' + todayIso() + '.json';
 
-  // 1) على أندرويد: احفظ ثم اعرض قائمة المشاركة الأصلية
+  // 1) على أندرويد: احفظ في مجلد التطبيق واعرض المسار
   if(typeof cordova !== 'undefined' && cordova.file){
     const dir = cordova.file.externalDataDirectory || cordova.file.dataDirectory;
     return new Promise((resolve)=>{
@@ -2135,8 +2136,7 @@ async function exportJSON(){
           fileEntry.createWriter(function(writer){
             writer.onwriteend = function(){
               const nativePath = fileEntry.nativeURL || fileEntry.toURL();
-              console.log('Saved to:', nativePath);
-              openShareDialog(json, fileName, nativePath);
+              showSavedFileDialog(fileName, nativePath);
               resolve();
             };
             writer.onerror = function(e){
@@ -2175,52 +2175,52 @@ async function exportJSON(){
   downloadFile(json, fileName);
 }
 
-function openShareDialog(json, fileName, nativePath){
-  const ss = window.plugins && window.plugins.socialsharing;
-  if(ss && ss.shareWithOptions){
-    try{
-      ss.shareWithOptions({
-        message: 'نسخة احتياطية من كتيّب السيارة — ' + fmtDate(new Date()),
-        subject: 'كتيّب السيارة',
-        files: [nativePath]
-      },
-      function(result){
-        console.log('Shared:', result);
-        toast('تمت المشاركة ✓','ok');
-      },
-      function(err){
-        console.warn('share error', err);
-        showSavedPathDialog(json, fileName, nativePath);
-      });
-      return;
-    }catch(e){
-      console.warn('socialsharing failed', e);
-    }
-  }
-  showSavedPathDialog(json, fileName, nativePath);
-}
-
-function showSavedPathDialog(json, fileName, nativePath){
-  const short = (nativePath||'').replace('file://','');
+function showSavedFileDialog(fileName, nativePath){
+  const shortPath = (nativePath || '').replace('file://','');
   openSheet('✅ تم حفظ الملف',
-    `<div style="text-align:center;padding:10px 0">
-      <div style="font-size:64px;margin-bottom:16px">💾</div>
-      <p style="font-size:14px;font-weight:800;color:var(--text);margin:0 0 12px">الملف جاهز</p>
+    `<div style="text-align:center;padding:8px 0">
+      <div style="font-size:64px;margin-bottom:12px">💾</div>
+      <p style="font-size:15px;font-weight:900;color:var(--text);margin:0 0 4px">${esc(fileName)}</p>
+      <p style="font-size:11px;color:var(--text-muted);font-weight:700;margin:0 0 14px">تم الحفظ بنجاح</p>
+      
       <div style="background:var(--surface-2);padding:12px;border-radius:10px;
                   font-size:11px;color:var(--text-muted);font-weight:700;
-                  word-break:break-all;line-height:1.6;text-align:left;direction:ltr">
-        ${esc(short || 'app-private-storage')}
+                  word-break:break-all;line-height:1.7;text-align:left;direction:ltr;
+                  border:1px solid var(--border);margin-bottom:12px">
+        📁 ${esc(shortPath || 'app storage')}
+      </div>
+
+      <div style="background:var(--primary-light);padding:12px 14px;border-radius:10px;
+                  font-size:11.5px;font-weight:700;color:var(--primary-dark);
+                  line-height:1.8;text-align:right;direction:rtl">
+        <b style="display:block;margin-bottom:6px;font-size:12.5px">📂 كيف تجد الملف؟</b>
+        1. افتح تطبيق <b>مدير الملفات</b> (Files)<br>
+        2. اذهب إلى: <b>Android → data</b><br>
+        3. ابحث عن: <b>com.lotfimounib.carlogbook</b><br>
+        4. ثم: <b>files</b><br>
+        <br>
+        💡 <b>نصيحة:</b> استخدم تطبيق <b>CX File Explorer</b> — يعرض مجلد Android/data بسهولة
       </div>
     </div>`,
     `<button class="btn btn-outline grow" onclick="closeSheet()">إغلاق</button>
-     <button class="btn btn-primary grow" id="shareAgainBtn">📤 مشاركة</button>`);
-  document.getElementById('shareAgainBtn').onclick = ()=>{
-    closeSheet();
-    const ss = window.plugins && window.plugins.socialsharing;
-    if(ss && ss.shareWithOptions){
-      ss.shareWithOptions({files:[nativePath]}, null, null);
+     <button class="btn btn-primary grow" id="copyPathBtn">📋 نسخ المسار</button>`);
+  document.getElementById('copyPathBtn').onclick = ()=>{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(shortPath).then(()=>{
+        toast('تم نسخ المسار ✓','ok');
+        closeSheet();
+      }).catch(()=>{
+        toast('تعذّر النسخ','err');
+      });
     } else {
-      toast('المشاركة غير متوفرة','warn');
+      // بديل قديم
+      const ta = document.createElement('textarea');
+      ta.value = shortPath;
+      document.body.appendChild(ta);
+      ta.select();
+      try{document.execCommand('copy');toast('تم نسخ المسار ✓','ok');}catch(e){toast('تعذّر النسخ','err');}
+      document.body.removeChild(ta);
+      closeSheet();
     }
   };
 }
@@ -2236,23 +2236,7 @@ function downloadFile(json, fileName){
   document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url), 2000);
   toast('تم التصدير ✓','ok');
-}
-
-document.getElementById('btnExport').addEventListener('click',exportJSON);
-document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change',e=>{
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{try{S=merge(structuredClone(DEFAULT),JSON.parse(ev.target.result));regenerateAll();saveState();renderScreen('home');toast('تم الاستيراد ✓','ok');}catch(err){toast('ملف غير صالح','err');}};
-  r.readAsText(f);e.target.value='';
-});
-document.getElementById('btnReset').addEventListener('click',()=>{
-  if(confirm('استعادة الافتراضي؟ سيتم حذف كل البيانات.')){
-    S=structuredClone(DEFAULT);saveState();regenerateAll();renderScreen('home');toast('تمت الاستعادة','ok');
-  }
-});
-document.getElementById('appBarAction').addEventListener('click',()=>go('settings'));
-
+    }
 /* ============ UPCOMING ============ */
 function computeUpcoming(){
   const byKm=[],byTime=[];
