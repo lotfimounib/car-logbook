@@ -44,7 +44,7 @@ jobs:
           npx cordova-res android --skip-config --copy
 
       - name: Add Android platform
-        run: cordova platform add android@15.1.0
+        run: cordova platform add android --nofetch
 
       - name: Build APK
         run: cordova build android --debug
