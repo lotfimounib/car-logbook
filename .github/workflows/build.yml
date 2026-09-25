@@ -39,6 +39,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate icons and splash
+        run: |
+          npx cordova-res android --skip-config --copy
+
       - name: Add Android platform
         run: cordova platform add android@15.1.0
 
