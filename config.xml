@@ -14,13 +14,7 @@
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="AndroidExtraFilesystems" value="files,documents,external" />
     <preference name="AndroidInsecureFileModeEnabled" value="true" />
-    <preference name="SplashMaintainAspectRatio" value="true" />
-    <preference name="SplashShowOnlyFirstTime" value="false" />
-    <preference name="SplashScreenDelay" value="1500" />
-    <preference name="AutoHideSplashScreen" value="true" />
-    <preference name="FadeSplashScreenDuration" value="300" />
     <platform name="android">
-        <preference name="AndroidWindowSplashScreenBackground" value="#c8102e" />
         <config-file parent="/*" target="AndroidManifest.xml">
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
             <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -29,20 +23,5 @@
             <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
             <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
         </config-file>
-        <icon density="ldpi" src="res/icon/android/ldpi.png" />
-        <icon density="mdpi" src="res/icon/android/mdpi.png" />
-        <icon density="hdpi" src="res/icon/android/hdpi.png" />
-        <icon density="xhdpi" src="res/icon/android/xhdpi.png" />
-        <icon density="xxhdpi" src="res/icon/android/xxhdpi.png" />
-        <icon density="xxxhdpi" src="res/icon/android/xxxhdpi.png" />
-        <splash density="land-ldpi" src="res/screen/android/land-ldpi.png" />
-        <splash density="land-mdpi" src="res/screen/android/land-mdpi.png" />
-        <splash density="land-hdpi" src="res/screen/android/land-hdpi.png" />
-        <splash density="port-ldpi" src="res/screen/android/port-ldpi.png" />
-        <splash density="port-mdpi" src="res/screen/android/port-mdpi.png" />
-        <splash density="port-hdpi" src="res/screen/android/port-hdpi.png" />
-        <splash density="port-xhdpi" src="res/screen/android/port-xhdpi.png" />
-        <splash density="port-xxhdpi" src="res/screen/android/port-xxhdpi.png" />
-        <splash density="port-xxxhdpi" src="res/screen/android/port-xxxhdpi.png" />
     </platform>
 </widget>
