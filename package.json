@@ -3,6 +3,7 @@
   "displayName": "كتيّب السيارة",
   "version": "3.0.0",
   "description": "Car Maintenance Logbook",
+  "type": "commonjs",
   "devDependencies": {
     "cordova-android": "^15.1.0",
     "cordova-res": "^0.15.4"
