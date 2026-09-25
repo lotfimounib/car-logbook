@@ -2,2284 +2,1044 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>كتيّب صيانة السيارة — النسخة التفاعلية</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1">
+<meta name="theme-color" content="#c8102e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>كتيّب السيارة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#fbfaf5; --paper-2:#f4f2ea; --ink:#151515; --ink-soft:#3a3a3a;
-  --muted:#6d6a62; --hair:#d4d0c4; --line:#2a2a2a;
-  --red:#a81226; --red-dark:#7d0d1c; --red-soft:#f4e0e1;
-  --gold:#b8860b; --green:#2f6b3d; --blue:#2b4763;
-  --orange:#e07c10; --amber:#d4a017;
+  --primary:#c8102e; --primary-dark:#8a0b1f; --primary-light:#fdeef1;
+  --accent:#d4a017; --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  --bg:#f2f3f7; --surface:#ffffff; --surface-2:#f8f9fc;
+  --text:#0f172a; --text-muted:#64748b; --border:#e5e8ef;
+  --radius:18px; --radius-sm:12px; --radius-xs:8px;
+  --shadow-sm:0 1px 3px rgba(15,23,42,.06);
+  --shadow:0 4px 14px rgba(15,23,42,.08);
+  --shadow-lg:0 16px 40px rgba(15,23,42,.16);
+  --nav-h:66px; --header-h:58px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overflow:hidden;height:100%}
 body{
-  font-family:'Tajawal',sans-serif;background:#2e2e2e;color:var(--ink);
-  padding:0 0 60px;
-  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  font-family:'Tajawal',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--text);
+  font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+  user-select:none;
+}
+input,textarea{user-select:text;-webkit-user-select:text}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0}
+input{font-family:inherit;border:none;outline:none;background:transparent;color:inherit;font-size:inherit}
+
+/* ============ APP SHELL ============ */
+.app{height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.app-bar{
+  height:calc(var(--header-h) + var(--safe-top));
+  padding:var(--safe-top) 20px 0;
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
+  color:#fff;display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:10;box-shadow:0 2px 12px rgba(200,16,46,.28);
+}
+.app-bar::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:rgba(255,255,255,.15);
+}
+.app-bar-title{font-size:17px;font-weight:900;letter-spacing:-.3px}
+.app-bar-sub{font-size:11px;opacity:.78;font-weight:600;margin-top:-2px}
+.icon-btn{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.16);font-size:17px;
+  transition:transform .15s, background .15s;
+}
+.icon-btn:active{transform:scale(.92);background:rgba(255,255,255,.28)}
+
+/* ============ SCREENS ============ */
+.screens{
+  flex:1;position:relative;overflow:hidden;
+  padding-bottom:calc(var(--nav-h) + var(--safe-bottom));
+}
+.screen{
+  position:absolute;inset:0;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease;
+  padding:18px 16px 24px;
+}
+.screen.active{opacity:1;pointer-events:auto}
+.screen::-webkit-scrollbar{display:none}
+
+/* ============ BOTTOM NAV ============ */
+.bottom-nav{
+  height:calc(var(--nav-h) + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;position:relative;z-index:10;
+  box-shadow:0 -2px 12px rgba(15,23,42,.05);
+}
+.nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;color:var(--text-muted);position:relative;
+  transition:color .18s;padding:8px 4px;
+}
+.nav-btn:active .nav-icon{transform:scale(.88)}
+.nav-icon{font-size:21px;line-height:1;transition:transform .18s;filter:grayscale(1) opacity(.6)}
+.nav-label{font-size:10.5px;font-weight:800;letter-spacing:-.2px}
+.nav-btn.active{color:var(--primary)}
+.nav-btn.active .nav-icon{filter:none;transform:translateY(-1px)}
+.nav-btn.active::before{
+  content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--primary);
 }
 
-/* ============ STICKY TOP WRAP ============ */
-.top-sticky{position:sticky;top:0;z-index:100;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+/* ============ CARDS & COMPONENTS ============ */
+.card{
+  background:var(--surface);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);padding:16px;margin-bottom:14px;
+  border:1px solid rgba(15,23,42,.04);
+}
+.card-title{font-size:14px;font-weight:900;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between}
+.card-title .count{font-size:11px;color:var(--text-muted);font-weight:800;background:var(--surface-2);padding:3px 9px;border-radius:20px}
 
-/* ============ TOOLBAR ============ */
-.toolbar{
-  background:linear-gradient(180deg,var(--red),var(--red-dark));
-  color:#fff;padding:9px 16px;
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+.vehicle-card{
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);
+  color:#fff;border-radius:var(--radius);padding:18px;
+  margin-bottom:16px;position:relative;overflow:hidden;
+  box-shadow:0 8px 24px rgba(200,16,46,.32);
 }
-.tb-left{display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0}
-.tb-left .dot{width:9px;height:9px;background:#fff;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.2);flex-shrink:0}
-.tb-left .tb-title{font-weight:900;font-size:13.5px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tb-left .save-flash{
-  font-size:10.5px;font-weight:800;color:#ffe9a8;
-  background:rgba(0,0,0,.18);padding:3px 9px;border-radius:20px;
-  opacity:0;transition:.25s;white-space:nowrap;flex-shrink:0;
+.vehicle-card::before{
+  content:'';position:absolute;top:-40%;left:-20%;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(255,255,255,.14) 0%,transparent 70%);
+  pointer-events:none;
 }
-.tb-left .save-flash.show{opacity:1}
+.vehicle-card::after{
+  content:'🚗';position:absolute;bottom:-10px;left:10px;
+  font-size:88px;opacity:.14;pointer-events:none;line-height:1;
+}
+.vc-name{font-size:20px;font-weight:900;letter-spacing:-.4px;margin-bottom:4px}
+.vc-plate{font-size:12px;opacity:.85;font-weight:700;letter-spacing:1px;margin-bottom:14px}
+.vc-km{display:flex;align-items:baseline;gap:6px;margin-top:10px}
+.vc-km-val{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1}
+.vc-km-unit{font-size:13px;opacity:.85;font-weight:700}
+.vc-km-lbl{font-size:11px;opacity:.75;font-weight:700;margin-bottom:6px}
 
-.mode-switch{
-  display:inline-flex;background:rgba(0,0,0,.2);
-  border:1px solid rgba(255,255,255,.28);
-  border-radius:10px;padding:3px;gap:2px;flex-shrink:0;
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{
+  background:var(--surface);border-radius:var(--radius-sm);padding:12px 10px;
+  text-align:center;box-shadow:var(--shadow-sm);
+  border:1px solid rgba(15,23,42,.04);
 }
-.mode-btn{
-  font-family:inherit;font-weight:800;font-size:12px;
-  padding:6px 13px;border-radius:7px;border:none;
-  background:transparent;color:#fff;cursor:pointer;
-  transition:all .18s ease;
-  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
-}
-.mode-btn:hover{background:rgba(255,255,255,.15)}
-.mode-btn.active{background:#fff;color:var(--red);box-shadow:0 1px 4px rgba(0,0,0,.25)}
-.mode-btn .mi{font-size:13px;line-height:1}
+.stat-val{font-size:22px;font-weight:900;letter-spacing:-.6px;color:var(--text);line-height:1.1}
+.stat-val.danger{color:var(--danger)}
+.stat-val.warning{color:var(--warning)}
+.stat-val.success{color:var(--success)}
+.stat-lbl{font-size:10.5px;color:var(--text-muted);font-weight:800;margin-top:4px}
 
-.tb-actions{display:inline-flex;gap:5px;flex-shrink:0;align-items:center}
-.tb-actions button{
-  font-family:inherit;font-weight:800;font-size:12px;
-  padding:7px 11px;border-radius:8px;
-  background:rgba(255,255,255,.13);color:#fff;
-  border:1px solid rgba(255,255,255,.28);
-  cursor:pointer;transition:all .18s ease;
-  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+/* Task list */
+.task-list{display:flex;flex-direction:column;gap:10px}
+.task-item{
+  background:var(--surface);border-radius:var(--radius-sm);padding:14px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:var(--shadow-sm);border:1px solid rgba(15,23,42,.04);
+  position:relative;overflow:hidden;
 }
-.tb-actions button:hover{background:#fff;color:var(--red);border-color:#fff;transform:translateY(-1px)}
-.tb-actions button .mi{font-size:13px;line-height:1}
+.task-item::before{
+  content:'';position:absolute;top:0;bottom:0;right:0;width:4px;
+  background:var(--primary);
+}
+.task-item.p-ok::before{background:var(--success)}
+.task-item.p-soon::before{background:var(--warning)}
+.task-item.p-urgent::before{background:var(--danger)}
+.task-item.p-overdue::before{background:#7d0d1c}
+.task-icon{
+  width:42px;height:42px;border-radius:12px;
+  background:var(--primary-light);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.task-body{flex:1;min-width:0}
+.task-name{font-size:13.5px;font-weight:800;color:var(--text);margin-bottom:3px;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.task-meta{font-size:11px;color:var(--text-muted);font-weight:700}
+.task-meta.danger{color:var(--danger);font-weight:900}
+.task-meta.warning{color:#b45309;font-weight:900}
+.task-meta.success{color:var(--success);font-weight:900}
 
-/* File link button — special states */
-#fileLinkBtn{
-  background:rgba(255,255,255,.22);
-  border-color:rgba(255,255,255,.5);
+/* List items */
+.list{display:flex;flex-direction:column;background:var(--surface);
+  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:14px}
+.list-item{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--border);position:relative;
 }
-#fileLinkBtn.linked{
-  background:#1b4d2b;border-color:#4caf6e;color:#eafff0;
+.list-item:last-child{border-bottom:none}
+.list-item .li-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--surface-2);display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;
 }
-#fileLinkBtn.linked:hover{background:#2e7a46;color:#fff}
-#fileLinkBtn.needs-perm{
-  background:#7a5a00;border-color:#e0b000;color:#fff8d0;
-  animation:pulsePerm 1.6s ease-in-out infinite;
+.list-item .li-body{flex:1;min-width:0}
+.list-item .li-title{font-size:13.5px;font-weight:800;color:var(--text)}
+.list-item .li-sub{font-size:11px;color:var(--text-muted);font-weight:600;margin-top:1px}
+
+/* Form row */
+.form-row{display:flex;flex-direction:column;gap:5px;padding:10px 0;border-bottom:1px solid var(--border)}
+.form-row:last-child{border-bottom:none}
+.form-row label{font-size:11px;color:var(--text-muted);font-weight:800;letter-spacing:.2px}
+.form-row input{
+  font-size:15px;font-weight:700;color:var(--text);width:100%;
+  padding:6px 0;border-bottom:1.5px solid transparent;
+  transition:border-color .15s;
 }
-#fileLinkBtn.needs-perm:hover{background:#a07800;color:#fff}
-#fileLinkBtn.unsupported{
-  background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);
-  color:#ffc8c8;cursor:not-allowed;
+.form-row input:focus{border-bottom-color:var(--primary)}
+.form-row input::placeholder{color:#b0b6c2;font-weight:600}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+
+/* Checkbox rows */
+.check-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.check-row:last-child{border-bottom:none}
+.cb{
+  appearance:none;-webkit-appearance:none;width:22px;height:22px;flex-shrink:0;
+  border:2px solid var(--border);border-radius:7px;background:var(--surface);
+  transition:all .15s;position:relative;cursor:pointer;
 }
-#fileLinkBtn.unsupported:hover{transform:none;background:rgba(255,255,255,.08)}
-@keyframes pulsePerm{
-  0%,100%{box-shadow:0 0 0 0 rgba(224,176,0,.6)}
-  50%{box-shadow:0 0 0 6px rgba(224,176,0,0)}
+.cb:checked{background:var(--primary);border-color:var(--primary)}
+.cb:checked::after{
+  content:'✓';position:absolute;inset:0;color:#fff;
+  font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;
 }
+.cb:active{transform:scale(.9)}
+.check-row .cr-text{font-size:13.5px;font-weight:700;flex:1;color:var(--text)}
+.check-row.done .cr-text{text-decoration:line-through;color:var(--text-muted)}
+
+/* Segmented control */
+.segment{
+  display:flex;background:var(--surface-2);padding:4px;border-radius:12px;
+  margin-bottom:14px;gap:2px;
+}
+.segment button{
+  flex:1;padding:9px 8px;border-radius:9px;
+  font-size:12.5px;font-weight:800;color:var(--text-muted);
+  transition:all .18s;letter-spacing:-.2px;
+}
+.segment button.active{
+  background:var(--surface);color:var(--primary);
+  box-shadow:0 2px 8px rgba(15,23,42,.08);
+}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px 18px;border-radius:12px;font-weight:800;font-size:13.5px;
+  transition:transform .12s, background .15s;letter-spacing:-.2px;
+}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 14px rgba(200,16,46,.32)}
+.btn-outline{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-full{width:100%}
+
+/* FAB */
+.fab{
+  position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);left:20px;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  color:#fff;font-size:28px;font-weight:300;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(200,16,46,.45);
+  transition:transform .18s;z-index:20;
+}
+.fab:active{transform:scale(.9)}
+.fab.hidden{display:none}
+
+/* Bottom sheet */
+.backdrop{
+  position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;transition:opacity .25s;z-index:100;
+}
+.backdrop.show{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-radius:22px 22px 0 0;
+  max-height:88vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);
+  z-index:101;padding-bottom:var(--safe-bottom);
+}
+.sheet.show{transform:translateY(0)}
+.sheet-handle{
+  width:38px;height:4px;background:var(--border);border-radius:4px;
+  margin:10px auto 4px;flex-shrink:0;
+}
+.sheet-header{
+  padding:10px 20px 14px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.sheet-title{font-size:16px;font-weight:900;color:var(--text)}
+.sheet-close{
+  width:32px;height:32px;border-radius:50%;background:var(--surface-2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);font-size:18px;
+}
+.sheet-body{padding:16px 20px 24px;overflow-y:auto;flex:1}
+.sheet-footer{padding:12px 20px 18px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0}
 
 /* Toast */
 .toast{
-  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:#1c1c1c;color:#fff;font-family:inherit;font-weight:700;font-size:13px;
-  padding:11px 22px;border-radius:30px;
-  box-shadow:0 6px 24px rgba(0,0,0,.5);
-  z-index:9999;opacity:0;pointer-events:none;
-  transition:opacity .25s, transform .25s;
-  max-width:92vw;text-align:center;
-  border:1px solid rgba(255,255,255,.12);
-  display:flex;align-items:center;gap:10px;
+  position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 20px);
+  left:50%;transform:translateX(-50%) translateY(20px);
+  background:#0f172a;color:#fff;font-size:13px;font-weight:700;
+  padding:12px 20px;border-radius:24px;
+  box-shadow:0 8px 24px rgba(0,0,0,.32);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:200;
+  max-width:90vw;text-align:center;display:flex;align-items:center;gap:8px;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast .t-ico{font-size:16px;line-height:1}
-.toast.ok{border-color:#4caf6e}
-.toast.warn{border-color:#e0b000}
-.toast.err{border-color:#ff6b6b}
+.toast.ok{background:#064e3b}
+.toast.err{background:#7f1d1d}
 
-/* ============ STATUS BAR ============ */
-.status-bar{
-  background:#1c1c1c;color:#fff;padding:8px 16px;
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  border-bottom:1px solid rgba(255,255,255,.08);
+/* Priority dot */
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot.p-ok{background:var(--success)}
+.dot.p-soon{background:var(--warning)}
+.dot.p-urgent{background:var(--danger)}
+.dot.p-overdue{background:#7d0d1c;box-shadow:0 0 0 3px rgba(125,13,28,.18)}
+
+/* Empty state */
+.empty{
+  text-align:center;padding:40px 20px;color:var(--text-muted);
+  font-size:13px;font-weight:600;
 }
-.status-bar .sb-item{display:flex;align-items:center;gap:6px;font-size:11.5px}
-.status-bar .sb-ico{font-size:14px;line-height:1}
-.status-bar label{font-weight:800;color:#c8c8c8;white-space:nowrap}
-.status-bar .sb-km{
-  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
-  color:#fff;font-weight:900;font-size:13px;padding:3px 8px;border-radius:5px;
-  width:84px;text-align:center;font-family:inherit;outline:none;
+.empty-icon{font-size:48px;opacity:.35;margin-bottom:10px;display:block}
+
+/* Time grid */
+.grid-weeks{display:flex;flex-direction:column;gap:6px}
+.grid-week-row{display:flex;align-items:center;gap:4px}
+.q-lbl{font-size:10px;font-weight:900;color:var(--primary);width:22px;flex-shrink:0}
+.wbox{flex:1;height:14px;border:1.5px solid var(--border);border-radius:3px;background:var(--surface);
+  appearance:none;-webkit-appearance:none;min-width:0}
+.wbox:checked{background:var(--primary);border-color:var(--primary)}
+.grid-months{display:flex;gap:4px}
+.month-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.m-lbl{font-size:9px;font-weight:800;color:var(--text-muted)}
+.mbox{width:100%;aspect-ratio:1;max-width:26px;border:1.5px solid var(--border);border-radius:5px;
+  background:var(--surface);appearance:none;-webkit-appearance:none}
+.mbox:checked{background:var(--primary);border-color:var(--primary)}
+
+/* Reference grid */
+.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.ref-card{
+  background:var(--surface);border-radius:var(--radius);
+  padding:18px 14px;text-align:center;
+  box-shadow:var(--shadow-sm);border:1px solid rgba(15,23,42,.04);
+  transition:transform .15s;
 }
-.status-bar .sb-km:focus{background:rgba(168,18,38,.35);border-color:#ff8a8a}
-.status-bar .sb-km::placeholder{color:#888;font-weight:700}
-.status-bar .sb-unit{color:#999;font-weight:700;font-size:10.5px}
-.status-bar .sb-task{
-  flex:1;min-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  cursor:pointer;padding:3px 6px;border-radius:5px;transition:background .15s;
-}
-.status-bar .sb-task:hover{background:rgba(255,255,255,.06)}
-.status-bar .sb-task .sb-lbl{color:#c8c8c8;font-weight:800;margin-left:4px}
-.status-bar .sb-task .sb-val{font-weight:900;color:#fff}
-.status-bar .sb-task.sb-overdue .sb-val{color:#ff7a7a}
-.status-bar .sb-task.sb-urgent .sb-val{color:#ff8a8a}
-.status-bar .sb-task.sb-soon .sb-val{color:#ffcc66}
-.status-bar .sb-task.sb-ok .sb-val{color:#9dd99d}
-.status-bar .sb-task.sb-empty .sb-val{color:#888;font-style:italic;font-weight:700}
+.ref-card:active{transform:scale(.96)}
+.ref-icon{font-size:32px;line-height:1;margin-bottom:8px}
+.ref-title{font-size:13px;font-weight:900;color:var(--text);letter-spacing:-.2px}
+.ref-sub{font-size:10.5px;color:var(--text-muted);font-weight:700;margin-top:3px}
 
-@media(max-width:720px){
-  .toolbar{padding:8px 12px;gap:8px}
-  .tb-left{flex:1 1 100%;order:1}
-  .mode-switch{order:2;flex:1}
-  .mode-btn{flex:1;justify-content:center;font-size:11.5px;padding:6px 8px}
-  .tb-actions{order:3}
-  .tb-actions button{padding:7px 9px}
-  .tb-actions button .lbl{display:none}
-  .status-bar{padding:6px 12px;gap:10px}
-  .status-bar .sb-km{width:66px;font-size:12px}
-  .status-bar .sb-task{font-size:10.5px;min-width:100px;flex:1 1 100%}
-}
+/* KM strip */
+.km-strip{display:flex;gap:5px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
+.km-item{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:32px}
+.km-num{font-size:10px;font-weight:900;color:var(--text)}
+.km-box{width:32px;height:32px;border:1.5px solid var(--border);background:var(--surface);
+  border-radius:6px;appearance:none;-webkit-appearance:none}
+.km-box:checked{background:var(--primary);border-color:var(--primary)}
 
-/* ============ PAGES ============ */
-.page{
-  width:210mm;min-height:297mm;margin:18px auto;background:var(--paper);
-  padding:14mm 15mm 12mm;box-shadow:0 6px 22px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.25);
-  position:relative;page-break-after:always;overflow:hidden;
-}
-.page:last-child{page-break-after:auto}
-.page::before{content:"";position:absolute;inset:6mm;border:1px solid var(--hair);pointer-events:none;z-index:0}
-.page.cover::before{border:2px solid var(--ink);inset:5mm}
-.page.cover::after{content:"";position:absolute;inset:6.5mm;border:1px solid var(--red);pointer-events:none;z-index:0}
-.page > *{position:relative;z-index:1}
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.screen.active > *{animation:fadeInUp .35s cubic-bezier(.22,1,.36,1) both}
+.screen.active > *:nth-child(2){animation-delay:.05s}
+.screen.active > *:nth-child(3){animation-delay:.1s}
+.screen.active > *:nth-child(4){animation-delay:.15s}
 
-.masthead{
-  display:flex;justify-content:space-between;align-items:center;
-  border-bottom:3px solid var(--ink);padding-bottom:7px;margin-bottom:12px;position:relative;
-}
-.masthead::after{content:"";position:absolute;bottom:-5px;right:0;left:0;height:1px;background:var(--ink)}
-.masthead .mh-left{display:flex;align-items:center;gap:12px}
-.masthead .crest{
-  width:38px;height:38px;background:var(--red);color:#fff;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Amiri',serif;font-weight:700;font-size:20px;
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.2);
-}
-.masthead .t1{font-size:17px;font-weight:900;line-height:1.15;letter-spacing:-.2px}
-.masthead .t2{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.masthead .badge{
-  background:var(--red);color:#fff;font-weight:900;font-size:11px;
-  padding:5px 14px;border-radius:2px;transform:skewX(-10deg);
-  letter-spacing:.5px;box-shadow:2px 2px 0 rgba(0,0,0,.15);
-}
-.masthead .badge span{display:inline-block;transform:skewX(10deg)}
-
-.pageno{
-  position:absolute;bottom:8mm;left:50%;transform:translateX(-50%);
-  font-size:10px;color:var(--muted);font-weight:800;letter-spacing:2px;z-index:2;
-}
-.pageno::before{content:"— ";color:var(--red)}
-.pageno::after{content:" —";color:var(--red)}
-
-.sec-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:900;margin:16px 0 10px}
-.sec-title .num{width:26px;height:26px;background:var(--ink);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0}
-.sec-title .txt{border-bottom:2px solid var(--red);padding-bottom:2px}
-.sec-title .en{margin-right:auto;font-size:10px;color:var(--muted);font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
-
-/* INPUTS */
-.inp{
-  font-family:inherit;font-size:inherit;font-weight:inherit;color:inherit;
-  background:transparent;border:none;outline:none;width:100%;min-width:24px;
-  padding:1px 2px;border-bottom:1px dotted transparent;border-radius:2px;
-  transition:background .15s, border-color .15s;
-}
-.inp:hover{border-bottom-color:var(--hair)}
-.inp:focus{background:rgba(168,18,38,.07);border-bottom-color:var(--red)}
-.inp::placeholder{color:#bfbab0;font-weight:600;font-size:.92em}
-body.viewing .inp{cursor:default;border-bottom-color:transparent !important;background:transparent !important}
-body.viewing .inp:hover,
-body.viewing .inp:focus{border-bottom-color:transparent !important;background:transparent !important}
-body.viewing .inp[data-always-edit]{cursor:text;border-bottom-color:var(--hair) !important}
-body.viewing .inp[data-always-edit]:focus{background:rgba(168,18,38,.07) !important;border-bottom-color:var(--red) !important}
-body.viewing select.inp,
-body.viewing select.gridtype-sel{opacity:.75;cursor:not-allowed;pointer-events:none}
-body.viewing .freq-count-inp{background:transparent !important;color:inherit}
-body.viewing .freq-badge-inp{background:var(--red) !important;color:#fff !important}
-
-.cb{
-  appearance:none;-webkit-appearance:none;width:14px;height:14px;min-width:14px;
-  border:1.5px solid var(--ink);border-radius:2px;background:var(--paper);
-  cursor:pointer;position:relative;margin:0;flex-shrink:0;
-}
-.cb:checked{background:var(--red);border-color:var(--red)}
-.cb:checked::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:11px;line-height:12px;text-align:center;font-weight:900}
-
-.add-btn,.del-btn{font-family:inherit;font-weight:900;cursor:pointer;display:none;flex-shrink:0}
-body.editing .add-btn,body.editing .del-btn{display:inline-flex;align-items:center;justify-content:center}
-.add-btn{background:var(--paper-2);border:1px dashed var(--muted);color:var(--muted);font-size:10px;padding:3px 10px;border-radius:20px;transition:.15s}
-.add-btn:hover{background:var(--red);color:#fff;border-color:var(--red);border-style:solid}
-.del-btn{background:transparent;border:none;color:#cfcabe;font-size:14px;width:16px;height:16px;line-height:1;padding:0;border-radius:50%;transition:.15s}
-.del-btn:hover{color:#fff;background:var(--red)}
-.row-actions{display:flex;gap:6px;justify-content:center;margin-top:6px;flex-wrap:wrap}
-
-/* Cover */
-.cover-body{display:flex;flex-direction:column;justify-content:space-between;height:calc(297mm - 28mm - 30px)}
-.cover-top{text-align:center;margin-top:8mm}
-.cover-badge-top{display:inline-block;padding:6px 22px;background:var(--ink);color:#fff;font-size:10px;font-weight:900;letter-spacing:4px;margin-bottom:16px}
-.cover h1{font-family:'Amiri',serif;font-size:60px;font-weight:700;color:var(--ink);margin:0 0 6px;line-height:1;letter-spacing:-1px}
-.cover h1 .accent{color:var(--red)}
-.cover .subtitle{font-size:15px;color:var(--muted);font-weight:700;letter-spacing:6px;text-transform:uppercase;margin-bottom:14px}
-.cover .divider{width:70px;height:3px;background:var(--red);margin:14px auto;position:relative}
-.cover .divider::before,.cover .divider::after{content:"";position:absolute;top:50%;transform:translateY(-50%);width:5px;height:5px;background:var(--red);border-radius:50%}
-.cover .divider::before{left:-12px}
-.cover .divider::after{right:-12px}
-.car-art{width:170px;height:auto;margin:8px auto 0;display:block;opacity:.92}
-.cover-info{background:var(--paper-2);border:1px solid var(--line);padding:16px 20px;margin-top:16px;position:relative}
-.cover-info::before{content:"بيانات المركبة";position:absolute;top:-9px;right:16px;background:var(--red);color:#fff;font-size:10px;font-weight:900;padding:3px 12px;letter-spacing:1px}
-.cover-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;margin-top:4px}
-.fillrow{padding-bottom:3px;min-height:26px}
-.fillrow .lbl{font-size:10.5px;color:var(--muted);font-weight:800;display:block;margin-bottom:1px}
-.fillrow .inp{font-size:12px;font-weight:800;border-bottom:1px dotted var(--muted);padding-bottom:3px}
-.cover-bottom{display:flex;justify-content:space-between;align-items:flex-end;padding-top:12px;border-top:1px solid var(--hair);font-size:10px;color:var(--muted);font-weight:700}
-.cover-bottom .stampbox{width:80px;height:60px;border:1.5px dashed var(--hair);display:flex;align-items:center;justify-content:center;font-size:8.5px;color:var(--muted);text-align:center;line-height:1.3}
-
-/* TOC */
-.toc-list{list-style:none;padding:0;margin:6px 0 0}
-.toc-list li{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px dotted var(--hair);font-size:12px;font-weight:700}
-.toc-list li .n{width:22px;height:22px;background:var(--paper-2);border:1px solid var(--hair);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:var(--red);flex-shrink:0}
-.toc-list li .d{flex:1;border-bottom:1px dotted var(--muted);margin:0 6px;transform:translateY(-4px)}
-.toc-list li .p{font-size:10.5px;color:var(--muted);font-weight:800}
-.toc-list li .desc{display:block;font-size:9.5px;color:var(--muted);font-weight:600;margin-top:1px}
-.toc-list li.new .n{background:var(--red);color:#fff;border-color:var(--red)}
-.toc-list li.new .t::after{content:"★";color:var(--gold);margin-right:5px;font-size:11px}
-
-/* Year banner */
-.year-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--ink);color:#fff;padding:9px 16px;margin-bottom:12px;border-right:4px solid var(--red);flex-wrap:wrap}
-.year-banner .yb-main{display:flex;align-items:center;gap:11px;font-weight:900;font-size:13px}
-.year-banner .yb-main .ico{width:26px;height:26px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.year-banner .yb-meta{display:flex;gap:16px;font-size:11px;font-weight:700;color:#c8c8c8}
-.year-banner .yb-meta b{color:#fff}
-.year-banner .yb-meta .dot{display:inline-block;width:5px;height:5px;background:var(--red);border-radius:50%;margin-left:6px;vertical-align:middle}
-
-/* Distance table */
-.ud-table{width:100%;border-collapse:collapse;border:1.5px solid var(--ink);margin-bottom:10px;table-layout:fixed}
-.ud-table thead th{background:var(--ink);color:#fff;padding:7px 8px;font-size:11px;font-weight:900;letter-spacing:.4px;border:1px solid var(--ink);text-align:center}
-.ud-table thead th.th-freq{width:15%}
-.ud-table thead th.th-tasks{width:37%;text-align:right}
-.ud-table thead th.th-checks{width:48%}
-.ud-table tbody td{border:1px solid var(--ink);padding:6px 8px;vertical-align:middle}
-.ud-table .freq-cell{text-align:center;background:var(--red-soft);vertical-align:middle}
-.ud-table .freq-cell .inp{text-align:center}
-.ud-table .freq-badge-inp{background:var(--red);color:#fff;font-size:13px;font-weight:900;border-radius:3px;padding:2px 6px;border-bottom:none;text-align:center}
-.ud-table .freq-badge-inp:focus{background:var(--red-dark)}
-.ud-table .freq-count-inp{font-size:9.5px;color:var(--red-dark);font-weight:800;text-align:center;margin-top:2px}
-.ud-table .tasks-cell{font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.6}
-.ud-table .tasks-cell .tsk{display:flex;align-items:center;gap:6px;padding:1px 0}
-.ud-table .tasks-cell .tsk .bullet{width:5px;height:5px;background:var(--red);border-radius:50%;flex-shrink:0}
-.ud-table .tasks-cell .tsk .inp{font-size:11.5px;font-weight:700}
-.ud-table tbody tr:nth-child(even) .tasks-cell,
-.ud-table tbody tr:nth-child(even) .checks-cell{background:var(--paper-2)}
-.checks-cell{padding:6px 8px !important}
-.km-strip{display:flex;gap:4px;align-items:flex-end;flex-wrap:wrap}
-.km-item{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:26px;position:relative}
-.km-item .km-num-inp{font-size:9.5px;font-weight:900;color:var(--ink);letter-spacing:.3px;text-align:center;padding:0;border-bottom:1px dotted transparent}
-.km-item .km-num-inp:focus{border-bottom-color:var(--red)}
-.km-item .km-box{
-  appearance:none;-webkit-appearance:none;width:100%;max-width:26px;aspect-ratio:1.35;
-  border:1.5px solid var(--ink);background:var(--paper);border-radius:2px;cursor:pointer;margin:0;
-}
-.km-item .km-box:checked{background:var(--red);border-color:var(--red)}
-.km-item .km-box:checked::after{content:"✓";display:block;color:#fff;font-size:11px;line-height:1;font-weight:900;text-align:center}
-.km-item .del-btn{position:absolute;top:-9px;left:-6px;width:14px;height:14px;font-size:11px}
-.km-item .addkm{width:100%;max-width:26px;aspect-ratio:1.35;border:1.5px dashed var(--muted);background:transparent;border-radius:2px;cursor:pointer;color:var(--muted);font-size:14px;font-weight:900;font-family:inherit;padding:0;display:none;line-height:1}
-body.editing .km-item .addkm{display:block}
-.km-item .addkm:hover{background:var(--red);color:#fff;border-color:var(--red);border-style:solid}
-
-/* Time table */
-.ut-table{width:100%;border-collapse:collapse;border:1.5px solid var(--ink);margin-bottom:10px;table-layout:fixed}
-.ut-table thead th{background:var(--ink);color:#fff;padding:6px 8px;font-size:10.5px;font-weight:900;border:1px solid var(--ink);text-align:center}
-.ut-table thead th.th-freq{width:17%}
-.ut-table thead th.th-task{width:30%;text-align:right}
-.ut-table thead th.th-grid{width:53%}
-.ut-table tbody td{border:1px solid var(--ink);padding:5px 7px;vertical-align:middle}
-.ut-table .freq-cell{background:var(--red-soft);text-align:center;vertical-align:middle}
-.ut-table .freq-badge-inp{background:var(--red);color:#fff;font-size:12px;font-weight:900;border-radius:3px;padding:2px 5px;border-bottom:none;text-align:center;white-space:nowrap}
-.ut-table .freq-badge-inp:focus{background:var(--red-dark)}
-.ut-table .freq-count-inp{font-size:9.5px;color:var(--red-dark);font-weight:800;text-align:center;margin-top:3px}
-.ut-table .gridtype-sel{font-size:9.5px;font-weight:800;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:3px;margin-top:4px;padding:1px 2px;width:100%;cursor:pointer}
-.ut-table .task-cell{font-size:11.5px;font-weight:700;line-height:1.5}
-.ut-table .task-cell .tline{display:flex;align-items:center;gap:5px;padding:1px 0}
-.ut-table .task-cell .ico-inp{width:22px;text-align:center;font-size:13px;flex-shrink:0;border-bottom:1px dotted transparent}
-.ut-table .task-cell .name-inp{flex:1;font-size:11.5px;font-weight:700}
-.ut-table tbody tr.alt .task-cell,
-.ut-table tbody tr.alt .grid-cell{background:var(--paper-2)}
-.grid-cell{padding:5px 8px !important}
-.weeks-grid{display:flex;flex-direction:column;gap:3px}
-.weeks-row{display:flex;align-items:center;gap:2px}
-.weeks-row .q-label{font-size:8.5px;font-weight:900;color:var(--red);width:20px;flex-shrink:0}
-.wbox{flex:1;height:11px;border:1.2px solid var(--ink);background:var(--paper);border-radius:1.5px;min-width:0;appearance:none;-webkit-appearance:none;cursor:pointer;margin:0}
-.wbox:checked{background:var(--red);border-color:var(--red)}
-.months-grid{display:flex;gap:3px;align-items:flex-end}
-.month-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
-.month-item .m-lbl{font-size:8px;font-weight:800;color:var(--muted)}
-.m-box{width:100%;max-width:22px;aspect-ratio:1.2;border:1.5px solid var(--ink);background:var(--paper);border-radius:2px;appearance:none;-webkit-appearance:none;cursor:pointer;margin:0}
-.m-box:checked{background:var(--red);border-color:var(--red)}
-.quarters-grid{display:flex;gap:10px;align-items:flex-end}
-.quarter-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
-.quarter-item .q-lbl{font-size:10px;font-weight:900;color:var(--ink)}
-.q-box{width:100%;max-width:40px;aspect-ratio:1.15;border:1.6px solid var(--ink);background:var(--paper);border-radius:2px;appearance:none;-webkit-appearance:none;cursor:pointer;margin:0}
-.q-box:checked{background:var(--red);border-color:var(--red)}
-.halves-grid{display:flex;gap:20px;align-items:flex-end;justify-content:center}
-.half-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;max-width:90px}
-.half-item .h-lbl{font-size:10.5px;font-weight:900;color:var(--ink)}
-.h-box{width:100%;height:26px;border:1.6px solid var(--ink);background:var(--paper);border-radius:2px;appearance:none;-webkit-appearance:none;cursor:pointer;margin:0}
-.h-box:checked{background:var(--red);border-color:var(--red)}
-.annual-grid{display:flex;justify-content:center}
-.annual-box{width:70%;height:28px;border:1.8px solid var(--ink);background:var(--paper);border-radius:3px;appearance:none;-webkit-appearance:none;cursor:pointer;margin:0}
-.annual-box:checked{background:var(--red);border-color:var(--red)}
-
-/* Quick grid */
-.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.quick-card{border:1px solid var(--line);padding:10px 12px;background:var(--paper);position:relative}
-.quick-card h4{margin:0 0 8px;padding-bottom:5px;font-size:12.5px;font-weight:900;color:var(--red);border-bottom:1.5px solid var(--red);display:flex;justify-content:space-between;align-items:center;gap:6px}
-.quick-card h4 .h4-inp{font-size:12.5px;font-weight:900;color:var(--red);flex:1}
-.quick-card h4 .badge-inp{font-size:9px;background:var(--red);color:#fff;padding:2px 8px;border-radius:20px;letter-spacing:.5px;width:auto;max-width:90px;text-align:center;border-bottom:none}
-.quick-card .checks{list-style:none;padding:0;margin:0}
-.quick-card .checks li{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:11.5px;font-weight:600;border-bottom:1px dotted var(--hair)}
-.quick-card .checks li:last-child{border-bottom:none}
-.quick-card .checks li .inp{font-size:11.5px;font-weight:600}
-
-/* Log tables */
-.log-table{width:100%;border-collapse:collapse;margin-bottom:10px;border:1px solid var(--line);table-layout:fixed}
-.log-table th{background:var(--ink);color:#fff;padding:7px 4px;font-size:10.5px;font-weight:800;text-align:center;border:1px solid var(--line)}
-.log-table td{border:1px solid var(--line);padding:0 2px;height:23px;font-size:11px;background:var(--paper)}
-.log-table tbody tr:nth-child(even) td{background:var(--paper-2)}
-.log-table td.fill{background:var(--paper-2);text-align:center;font-weight:800;color:var(--muted);font-size:10px;width:26px}
-.log-table .inp{font-size:10.5px;font-weight:600;text-align:center;padding:2px 1px}
-.log-table .inp:focus{background:rgba(168,18,38,.09)}
-
-/* Info boxes */
-.info-boxes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.info-box{border:1px solid var(--line);padding:11px 14px;background:var(--paper);position:relative}
-.info-box h4{margin:0 0 8px;padding-bottom:6px;font-size:12.5px;font-weight:900;color:var(--red);border-bottom:1.5px solid var(--red);display:flex;align-items:center;gap:7px}
-.info-box h4::before{content:"";width:6px;height:6px;background:var(--red);border-radius:50%;flex-shrink:0}
-.info-line{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px dotted var(--hair);font-size:11px;font-weight:700;gap:8px}
-.info-line .l{color:var(--muted);font-weight:800;white-space:nowrap;flex:0 0 auto}
-.info-line .inp{flex:1;font-size:11px;font-weight:800;text-align:center;border-bottom:1px dotted var(--muted)}
-.info-line .u{font-size:10px;color:var(--muted);font-weight:800;flex:0 0 auto}
-.info-line:last-child{border-bottom:none}
-
-/* Tire box */
-.tire-box{display:grid;grid-template-columns:1fr 1fr;gap:8px;border:1px solid var(--line);padding:12px;background:var(--paper-2)}
-.tire-box .t-item{display:flex;justify-content:space-between;align-items:center;padding:5px 10px;background:var(--paper);border:1px solid var(--hair);font-size:11.5px;font-weight:800;gap:8px}
-.tire-box .t-item .inp{font-family:'Amiri',serif;font-size:15px;color:var(--red);text-align:center;border-bottom:1px dotted var(--muted);max-width:70px;font-weight:700}
-
-/* Notes */
-.notes-lines{display:flex;flex-direction:column;gap:14px;margin-top:8px}
-.notes-lines .nl{border-bottom:1.5px dotted var(--muted);height:20px}
-.footer-mark{position:absolute;bottom:11mm;right:15mm;left:15mm;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.5px;padding-top:6px;border-top:1px solid var(--hair);z-index:2}
-.ornament{text-align:center;margin:12px 0;color:var(--red);font-size:12px}
-.ornament::before{content:"◆ ◆ ◆";letter-spacing:8px}
-
-/* Parts catalog */
-.catalog-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
-.catalog-card{border:1px solid var(--line);background:var(--paper);padding:9px 11px;position:relative}
-.catalog-card h4{margin:0 0 6px;padding-bottom:4px;font-size:11.5px;font-weight:900;color:var(--red);border-bottom:1.5px solid var(--red);display:flex;align-items:center;gap:6px}
-.catalog-card h4 .num-badge{width:18px;height:18px;background:var(--ink);color:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0}
-.catalog-card h4 .inp{font-size:11.5px;font-weight:900;color:var(--red)}
-.catalog-line{display:flex;align-items:center;gap:6px;padding:2px 0;border-bottom:1px dotted var(--hair)}
-.catalog-line:last-child{border-bottom:none}
-.catalog-line .cl{flex:0 0 46%;font-size:10.5px;font-weight:800;color:var(--muted)}
-.catalog-line .cd{flex:1;font-size:10.5px;font-weight:800;border-bottom:1px dotted var(--muted);text-align:center}
-
-/* Warranty */
-.warranty-table{width:100%;border-collapse:collapse;margin-bottom:12px;border:1.5px solid var(--ink);table-layout:fixed}
-.warranty-table thead th{background:var(--red);color:#fff;padding:7px 4px;font-size:10.5px;font-weight:900;text-align:center;border:1px solid var(--ink)}
-.warranty-table tbody td{border:1px solid var(--line);padding:0 2px;height:25px;font-size:11px;background:var(--paper)}
-.warranty-table tbody tr:nth-child(even) td{background:var(--paper-2)}
-.warranty-table td.fill{background:var(--paper-2);text-align:center;font-weight:800;color:var(--muted);font-size:10px;width:26px}
-.warranty-table .inp{font-size:10.5px;font-weight:600;text-align:center;padding:2px 1px}
-
-/* Doc alert */
-.doc-alert{background:var(--red-soft);border:1.5px dashed var(--red);padding:10px 14px;margin-top:10px;border-radius:4px;display:flex;align-items:center;gap:12px}
-.doc-alert .da-icon{width:36px;height:36px;background:var(--red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.doc-alert .da-txt{font-size:11.5px;font-weight:800;color:var(--red-dark);line-height:1.6}
-.doc-alert .da-txt b{display:block;font-size:12.5px;margin-bottom:2px}
-
-/* Workshop cards */
-.workshop-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
-.workshop-card{border:1px solid var(--line);background:var(--paper);padding:9px 11px;display:flex;flex-direction:column;gap:4px;position:relative}
-.workshop-card .wc-head{display:flex;align-items:center;gap:8px;padding-bottom:5px;border-bottom:1.5px solid var(--red)}
-.workshop-card .wc-ico{width:28px;height:28px;background:var(--paper-2);border:1px solid var(--hair);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;text-align:center}
-.workshop-card .wc-title{flex:1;font-size:11.5px;font-weight:900;color:var(--red);line-height:1.2}
-.workshop-card .wc-title .inp{font-size:11.5px;font-weight:900;color:var(--red)}
-.workshop-card .wc-title small{display:block;font-size:8.5px;color:var(--muted);font-weight:700;letter-spacing:.3px;text-transform:uppercase;margin-top:1px}
-.workshop-card .wc-line{display:flex;align-items:center;gap:6px;padding:2px 0;border-bottom:1px dotted var(--hair);font-size:10.5px;font-weight:700}
-.workshop-card .wc-line:last-child{border-bottom:none}
-.workshop-card .wc-line .wl{color:var(--muted);font-weight:800;white-space:nowrap;flex:0 0 40%}
-.workshop-card .wc-line .inp{flex:1;font-size:10.5px;font-weight:800;border-bottom:1px dotted var(--muted);text-align:center}
-
-/* Rotation diagram */
-.rotation-diagram{display:flex;justify-content:center;margin:10px 0;padding:14px;background:var(--paper-2);border:1px solid var(--hair)}
-.car-diagram{display:flex;flex-direction:column;align-items:center;gap:12px}
-.car-rows{display:flex;gap:60px}
-.wheel{width:64px;height:64px;border:2.5px solid var(--ink);border-radius:50%;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8.5px;font-weight:900;color:var(--muted);position:relative;letter-spacing:.2px;text-align:center;line-height:1.2}
-.wheel::after{content:"";position:absolute;inset:5px;border:1px dashed var(--muted);border-radius:50%;pointer-events:none}
-.wheel .wpos{font-size:10px;color:var(--red);font-weight:900}
-.wheel.front{background:var(--red-soft);border-color:var(--red)}
-.car-nose{font-size:10px;font-weight:900;color:var(--red);letter-spacing:3px;margin-bottom:4px}
-.rotation-caption{text-align:center;font-size:10.5px;font-weight:700;color:var(--muted);margin-top:6px}
-
-/* Cutout card */
-.cutout-card{border:2px dashed var(--red);border-radius:8px;padding:14px 18px 12px;margin-top:12px;background:#fff;position:relative}
-.cutout-card::before{content:"✂️ بطاقة طوارئ — اقصر على الخط المتقطع واحفظها في محفظتك";position:absolute;top:-10px;right:20px;background:var(--paper);padding:0 10px;font-size:10.5px;font-weight:900;color:var(--red)}
-.cutout-inner{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;padding-top:4px}
-.cutout-row{display:flex;align-items:center;gap:8px}
-.cutout-row .crl{font-size:9.5px;font-weight:900;color:var(--muted);flex:0 0 42%}
-.cutout-row .inp{flex:1;font-size:11px;font-weight:800;border-bottom:1px dotted var(--ink);padding-bottom:2px}
-
-/* Summary */
-.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
-.summary-item{background:var(--paper-2);border:1px solid var(--hair);padding:9px 12px;border-right:4px solid var(--red)}
-.summary-item .si-lbl{font-size:10.5px;font-weight:800;color:var(--muted);margin-bottom:3px}
-.summary-item .inp{font-family:'Amiri',serif;font-size:21px;font-weight:700;color:var(--red);border-bottom:1.5px dotted var(--muted);text-align:center;padding-bottom:2px}
-.summary-item .si-unit{font-size:10px;color:var(--muted);font-weight:700;margin-top:2px;text-align:center}
-
-.carry-over{background:var(--ink);color:#fff;padding:12px 16px;border-radius:6px;margin-bottom:12px;border-right:5px solid var(--red)}
-.carry-over h4{margin:0 0 8px;font-size:13px;font-weight:900;color:#fff;display:flex;align-items:center;gap:8px}
-.carry-over h4::before{content:"";width:8px;height:8px;background:var(--red);border-radius:50%;box-shadow:0 0 0 3px rgba(168,18,38,.35);flex-shrink:0}
-.carry-over .co-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 22px}
-.carry-over .co-line{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dotted rgba(255,255,255,.3);font-size:11px;font-weight:700}
-.carry-over .co-line .l{color:#b8b8b8;font-weight:800;white-space:nowrap;flex:0 0 55%}
-.carry-over .co-line .inp{flex:1;color:#fff;font-weight:800;border-bottom:1px dotted rgba(255,255,255,.45);text-align:center}
-.carry-over .co-line .inp:focus{background:rgba(255,255,255,.12)}
-body.viewing .carry-over .co-line .inp{border-bottom-color:rgba(255,255,255,.25) !important}
-
-.self-rating{display:flex;justify-content:center;gap:12px;margin:8px 0}
-.rating-item{display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid var(--line);padding:7px 14px;border-radius:6px;background:var(--paper);min-width:78px}
-.rating-item .r-star{font-size:18px;color:var(--gold)}
-.rating-item .r-lbl{font-size:10px;font-weight:900;color:var(--ink)}
-.rating-item .cb{width:15px;height:15px;margin-top:2px}
-
-/* Upcoming page */
-.up-inputs{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;
-  background:var(--paper-2);border:1px solid var(--line);
-  padding:11px 14px;border-radius:6px;margin-bottom:14px;
-}
-.up-inp-item{display:flex;flex-direction:column;gap:3px}
-.up-inp-item label{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:.2px}
-.up-inp-item .up-line{display:flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--hair);border-radius:5px;padding:4px 8px}
-.up-inp-item .up-line input{font-size:14px;font-weight:900;color:var(--ink);text-align:center}
-.up-inp-item .up-line input[type="date"]{font-size:12px;text-align:center;font-family:inherit;border:none;background:transparent;outline:none;width:100%;color:var(--ink);font-weight:800}
-.up-inp-item .up-line input:focus{background:rgba(168,18,38,.05)}
-.up-inp-item .up-unit{font-size:10.5px;font-weight:800;color:var(--muted)}
-.up-inp-item .up-hint{font-size:9px;color:var(--muted);font-weight:600;margin-top:1px}
-
-.upcoming-table{width:100%;border-collapse:collapse;border:1.5px solid var(--ink);margin-bottom:10px;table-layout:fixed}
-.upcoming-table thead th{background:var(--ink);color:#fff;padding:7px 6px;font-size:10.5px;font-weight:900;letter-spacing:.3px;text-align:center;border:1px solid var(--ink)}
-.upcoming-table tbody td{border:1px solid var(--line);padding:6px 8px;font-size:11px;vertical-align:middle;background:var(--paper)}
-.upcoming-table tbody tr:nth-child(even) td{background:var(--paper-2)}
-.upcoming-table .up-priority{text-align:center;width:44px}
-.upcoming-table .up-tasks{font-weight:700;line-height:1.55;font-size:11px}
-.upcoming-table .up-tasks > div{display:flex;align-items:center;gap:5px;padding:1px 0}
-.upcoming-table .up-tasks > div::before{content:"";width:5px;height:5px;background:var(--red);border-radius:50%;flex-shrink:0}
-.upcoming-table .up-km,
-.upcoming-table .up-date{text-align:center;font-weight:900;color:var(--ink);font-size:12px}
-.upcoming-table .up-date{font-size:11px}
-.upcoming-table .up-remain{text-align:center;font-weight:900;font-size:11.5px}
-.upcoming-table .up-interval{text-align:center;font-weight:800;font-size:10.5px;color:var(--muted)}
-
-.up-dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle}
-.up-dot.p-overdue{background:#7d0d1c;box-shadow:0 0 0 3px rgba(125,13,28,.22)}
-.up-dot.p-urgent{background:var(--red);box-shadow:0 0 0 3px rgba(168,18,38,.18)}
-.up-dot.p-soon{background:var(--orange);box-shadow:0 0 0 3px rgba(224,124,16,.18)}
-.up-dot.p-watch{background:var(--amber);box-shadow:0 0 0 3px rgba(212,160,23,.18)}
-.up-dot.p-ok{background:var(--green);box-shadow:0 0 0 3px rgba(47,107,61,.18)}
-
-.up-remain.p-overdue{color:#7d0d1c}
-.up-remain.p-urgent{color:var(--red)}
-.up-remain.p-soon{color:#b8600a}
-.up-remain.p-watch{color:#8a6a00}
-.up-remain.p-ok{color:var(--green)}
-
-.up-empty{text-align:center;color:var(--muted);font-style:italic;padding:22px 10px !important;font-size:11.5px;font-weight:600}
-.up-empty strong{color:var(--green);font-style:normal}
-
-.up-legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:8px 0 4px;font-size:10.5px;font-weight:800;color:var(--muted)}
-.up-legend span{display:inline-flex;align-items:center;gap:5px}
-
-/* Print */
-@page{size:A4;margin:0}
-@media print{
-  body{background:#fff;padding:0}
-  .top-sticky,.toast{display:none!important}
-  .add-btn,.del-btn,.addkm,.row-actions{display:none!important}
-  .page{margin:0;box-shadow:none;border:none;width:210mm;height:297mm;page-break-after:always;page-break-inside:avoid}
-  .page:last-child{page-break-after:auto}
-  .inp{background:transparent!important;border-bottom-color:transparent!important}
-}
-@media(max-width:900px){
-  .page{width:100%;padding:20px;margin:10px 0;min-height:auto}
-  .page::before{inset:10px}
-  .cover h1{font-size:42px}
-  .info-boxes,.quick-grid,.tire-box,.catalog-grid,.workshop-grid,.summary-grid,.up-inputs{grid-template-columns:1fr}
-  .cover-grid{grid-template-columns:1fr}
-  .car-rows{gap:30px}
-  .wheel{width:56px;height:56px}
-  .cutout-inner,.carry-over .co-grid{grid-template-columns:1fr}
-  .ud-table,.ut-table,.upcoming-table{font-size:10px}
-  .km-strip{flex-wrap:wrap}
-}
+/* Small utility */
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+.muted{color:var(--text-muted);font-size:11px;font-weight:700}
+.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}
+.mt-8{margin-top:8px}.mt-16{margin-top:16px}
 </style>
 </head>
-<body class="viewing">
+<body>
 
-<div class="top-sticky">
-  <div class="toolbar">
-    <div class="tb-left">
-      <span class="dot"></span>
-      <span class="tb-title">كتيّب صيانة السيارة</span>
-      <span class="save-flash" id="saveFlash">✓ تم الحفظ</span>
+<div class="app">
+  <!-- APP BAR -->
+  <header class="app-bar">
+    <div>
+      <div class="app-bar-title" id="headerTitle">كتيّب السيارة</div>
+      <div class="app-bar-sub" id="headerSub">الصيانة الذكية</div>
     </div>
+    <button class="icon-btn" id="appBarAction">⚙️</button>
+  </header>
 
-    <div class="mode-switch" role="tablist" aria-label="وضع الاستخدام">
-      <button class="mode-btn" data-action="setMode" data-mode="viewing" title="وضع العرض — لتأشير المربعات فقط">
-        <span class="mi">👁️</span><span>عرض</span>
-      </button>
-      <button class="mode-btn" data-action="setMode" data-mode="editing" title="وضع التحرير — لتعديل المهام والكيلومترات">
-        <span class="mi">✏️</span><span>تحرير</span>
-      </button>
-    </div>
+  <!-- SCREENS -->
+  <main class="screens">
 
-    <div class="tb-actions">
-      <button id="fileLinkBtn" data-action="linkFile" title="ربط ملف لحفظ البيانات تلقائياً">
-        <span class="mi" id="fileLinkIcon">📁</span>
-        <span class="lbl" id="fileLinkLbl">ربط ملف</span>
-      </button>
-      <button onclick="window.print()" title="طباعة / حفظ PDF"><span class="mi">🖨️</span><span class="lbl">طباعة</span></button>
-      <button data-action="export" title="تنزيل نسخة JSON"><span class="mi">⬇️</span><span class="lbl">تصدير</span></button>
-      <button data-action="import" title="استيراد نسخة JSON"><span class="mi">⬆️</span><span class="lbl">استيراد</span></button>
-      <button data-action="reset" title="استعادة الوضع الافتراضي"><span class="mi">↺</span></button>
-    </div>
-    <input type="file" id="fileInput" accept="application/json" style="display:none">
-  </div>
+    <!-- HOME -->
+    <section class="screen active" data-screen="home">
+      <div class="vehicle-card">
+        <div class="vc-name" id="vcName">— سيارة —</div>
+        <div class="vc-plate" id="vcPlate">— · —</div>
+        <div class="vc-km-lbl">قراءة العداد الحالية</div>
+        <div class="vc-km">
+          <span class="vc-km-val" id="vcKm">0</span>
+          <span class="vc-km-unit">كم</span>
+        </div>
+      </div>
 
-  <div class="status-bar">
-    <div class="sb-item">
-      <span class="sb-ico">🚗</span>
-      <label>العداد الحالي</label>
-      <input type="text" inputmode="numeric" class="sb-km" data-path="currentKm" data-always-edit placeholder="0">
-      <span class="sb-unit">كم</span>
-    </div>
-    <div class="sb-item sb-task" data-action="gotoUpcoming" title="اذهب إلى صفحة المهام القادمة">
-      <span class="sb-ico">📏</span>
-      <span class="sb-lbl">أقرب بالمسافة:</span>
-      <span class="sb-val" id="nextKmTask">—</span>
-    </div>
-    <div class="sb-item sb-task" data-action="gotoUpcoming" title="اذهب إلى صفحة المهام القادمة">
-      <span class="sb-ico">📅</span>
-      <span class="sb-lbl">أقرب بالوقت:</span>
-      <span class="sb-val" id="nextTimeTask">—</span>
-    </div>
-  </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-val" id="statNext">—</div><div class="stat-lbl">مهمة قادمة</div></div>
+        <div class="stat"><div class="stat-val" id="statDays">—</div><div class="stat-lbl">يوم متبقي</div></div>
+        <div class="stat"><div class="stat-val" id="statAlerts">—</div><div class="stat-lbl">تنبيهات</div></div>
+      </div>
+
+      <div class="card-title" style="padding:0 4px;margin-bottom:12px">
+        المهام القادمة <span class="count" id="upcomingCount">0</span>
+      </div>
+      <div class="task-list" id="homeTasks"></div>
+    </section>
+
+    <!-- TASKS -->
+    <section class="screen" data-screen="tasks">
+      <div class="segment" id="taskSeg">
+        <button class="active" data-view="km">🛣️ حسب المسافة</button>
+        <button data-view="time">📅 حسب الوقت</button>
+      </div>
+      <div id="tasksContent"></div>
+    </section>
+
+    <!-- LOGS -->
+    <section class="screen" data-screen="logs">
+      <div class="segment" id="logSeg">
+        <button class="active" data-view="fuel">⛽ الوقود</button>
+        <button data-view="repairs">🔧 الإصلاحات</button>
+        <button data-view="tires">🛞 الإطارات</button>
+      </div>
+      <div id="logsContent"></div>
+    </section>
+
+    <!-- REFERENCE -->
+    <section class="screen" data-screen="ref">
+      <div class="ref-grid">
+        <button class="ref-card" data-ref="catalog"><div class="ref-icon">📋</div><div class="ref-title">كتالوج القطع</div><div class="ref-sub">المواصفات</div></button>
+        <button class="ref-card" data-ref="workshops"><div class="ref-icon">🏢</div><div class="ref-title">الورش</div><div class="ref-sub">جهات موثوقة</div></button>
+        <button class="ref-card" data-ref="warranty"><div class="ref-icon">🛡️</div><div class="ref-title">الضمانات</div><div class="ref-sub">القطع والوثائق</div></button>
+        <button class="ref-card" data-ref="emergency"><div class="ref-icon">🚨</div><div class="ref-title">الطوارئ</div><div class="ref-sub">أرقام مهمة</div></button>
+        <button class="ref-card" data-ref="warnings"><div class="ref-icon">⚠️</div><div class="ref-title">علامات التحذير</div><div class="ref-sub">دليل سريع</div></button>
+        <button class="ref-card" data-ref="tires"><div class="ref-icon">💨</div><div class="ref-title">ضغط الإطارات</div><div class="ref-sub">PSI موصى به</div></button>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="window.print()">🖨️ طباعة الكُتيّب كاملاً</button>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="screen" data-screen="settings">
+      <div class="card">
+        <div class="card-title">🚗 بيانات المركبة</div>
+        <div class="form-grid">
+          <div class="form-row"><label>المالك</label><input data-p="meta.owner" placeholder="—"></div>
+          <div class="form-row"><label>الجوال</label><input data-p="meta.phone" placeholder="—"></div>
+          <div class="form-row"><label>نوع السيارة</label><input data-p="meta.car" placeholder="—"></div>
+          <div class="form-row"><label>سنة الصنع</label><input data-p="meta.year" placeholder="—"></div>
+          <div class="form-row"><label>اللوحة</label><input data-p="meta.plate" placeholder="—"></div>
+          <div class="form-row"><label>الهيكل (VIN)</label><input data-p="meta.vin" placeholder="—"></div>
+          <div class="form-row"><label>تاريخ بدء الكُتيّب</label><input data-p="meta.start" placeholder="DD/MM/YYYY"></div>
+          <div class="form-row"><label>تاريخ اليوم</label><input type="date" data-p="currentDate"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 العداد</div>
+        <div class="form-row"><label>قراءة العداد الحالية (كم)</label><input type="text" inputmode="numeric" data-p="currentKm" placeholder="0"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💾 البيانات</div>
+        <button class="btn btn-outline btn-full mb-8" id="btnSaveFile">💾 حفظ نسخة على الجهاز</button>
+        <button class="btn btn-outline btn-full mb-8" id="btnExport">⬇️ تصدير JSON</button>
+        <button class="btn btn-outline btn-full mb-8" id="btnImport">⬆️ استيراد JSON</button>
+        <button class="btn btn-danger btn-full" id="btnReset">↺ استعادة الافتراضي</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none">
+      </div>
+
+      <div class="card">
+        <div class="card-title">ℹ️ حول التطبيق</div>
+        <div class="list-item" style="padding:8px 0;border:none">
+          <div class="li-icon">📱</div>
+          <div class="li-body">
+            <div class="li-title">كتيّب صيانة السيارة</div>
+            <div class="li-sub">الإصدار 2.0 · نسخة تفاعلية</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FAB -->
+  <button class="fab hidden" id="fab">+</button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="home"><span class="nav-icon">🏠</span><span class="nav-label">الرئيسية</span></button>
+    <button class="nav-btn" data-screen="tasks"><span class="nav-icon">📋</span><span class="nav-label">المهام</span></button>
+    <button class="nav-btn" data-screen="logs"><span class="nav-icon">📝</span><span class="nav-label">السجلات</span></button>
+    <button class="nav-btn" data-screen="ref"><span class="nav-icon">📚</span><span class="nav-label">المراجع</span></button>
+    <button class="nav-btn" data-screen="settings"><span class="nav-icon">⚙️</span><span class="nav-label">الإعدادات</span></button>
+  </nav>
 </div>
 
-<div class="toast" id="toast"><span class="t-ico" id="toastIco">✓</span><span id="toastMsg"></span></div>
-
-<main id="app">
-
-<!-- ===== PAGE 1 — COVER ===== -->
-<section class="page cover">
-  <div class="cover-body">
-    <div class="cover-top">
-      <div class="cover-badge-top">MAINTENANCE BOOKLET · 1 YEAR</div>
-      <svg class="car-art" viewBox="0 0 200 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 62 L28 44 Q30 40 36 38 L66 30 Q72 28 78 30 L118 38 Q124 40 128 44 L136 62 Z" stroke="#151515" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-        <path d="M20 62 L136 62" stroke="#151515" stroke-width="2.5"/>
-        <path d="M20 62 L18 68 L140 68 L136 62" stroke="#151515" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
-        <path d="M40 46 L54 42 L54 54 L40 54 Z M60 42 L94 42 L94 54 L60 54 Z M100 42 L112 46 L112 54 L100 54 Z" fill="#a81226" opacity="0.15" stroke="#151515" stroke-width="1.5"/>
-        <circle cx="42" cy="68" r="9" fill="none" stroke="#151515" stroke-width="2.5"/>
-        <circle cx="42" cy="68" r="3.5" fill="#151515"/>
-        <circle cx="112" cy="68" r="9" fill="none" stroke="#151515" stroke-width="2.5"/>
-        <circle cx="112" cy="68" r="3.5" fill="#151515"/>
-        <line x1="150" y1="20" x2="150" y2="72" stroke="#a81226" stroke-width="1" stroke-dasharray="3 3"/>
-        <circle cx="150" cy="20" r="2.5" fill="#a81226"/>
-        <circle cx="150" cy="72" r="2.5" fill="#a81226"/>
-      </svg>
-      <h1>كتيّب <span class="accent">صيانة</span><br>السيارة</h1>
-      <div class="subtitle">CAR CARE LOGBOOK</div>
-      <div class="divider"></div>
-      <p style="font-size:13px;color:var(--muted);font-weight:600;max-width:440px;margin:0 auto;line-height:1.9">
-        <b style="color:var(--red)">حفظ آمن في ملف:</b> اضغط «📁 ربط ملف» لحفظ بياناتك في ملف JSON على جهازك.
-        <br>بعد الربط، كل تعديل يُحفظ تلقائياً في نفس الملف.
-        <br><b style="color:var(--red)">دورة كاملة · 12 شهراً · 100,000 كم</b>
-      </p>
-    </div>
-
-    <div class="cover-info">
-      <div class="cover-grid">
-        <div class="fillrow"><span class="lbl">اسم المالك / Owner</span><input class="inp" data-path="meta.owner" placeholder="—"></div>
-        <div class="fillrow"><span class="lbl">رقم الهاتف / Phone</span><input class="inp" data-path="meta.phone" placeholder="—"></div>
-        <div class="fillrow"><span class="lbl">نوع السيارة / Make &amp; Model</span><input class="inp" data-path="meta.car" placeholder="—"></div>
-        <div class="fillrow"><span class="lbl">سنة الصنع / Year</span><input class="inp" data-path="meta.year" placeholder="—"></div>
-        <div class="fillrow"><span class="lbl">رقم اللوحة / Plate No.</span><input class="inp" data-path="meta.plate" placeholder="—"></div>
-        <div class="fillrow"><span class="lbl">رقم الهيكل (VIN)</span><input class="inp" data-path="meta.vin" placeholder="—"></div>
-        <div class="fillrow"><span class="lbl">قراءة العداد عند البدء</span><input class="inp" data-path="meta.odo" placeholder="—"></div>
-        <div class="fillrow"><span class="lbl">تاريخ بدء الكُتيّب (DD/MM/YYYY)</span><input class="inp" data-path="meta.start" placeholder="—"></div>
-      </div>
-    </div>
-
-    <div class="cover-bottom">
-      <div><strong style="color:var(--ink)">إصدار 2025 · النسخة التفاعلية</strong><br>نسخة رقم ____ من ____</div>
-      <div class="stampbox">مكان<br>ختم<br>الورشة</div>
-    </div>
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-title" id="sheetTitle">—</div>
+    <button class="sheet-close" id="sheetClose">✕</button>
   </div>
-  <div class="pageno">PAGE 01</div>
-</section>
-
-
-<!-- ===== PAGE 2 — INDEX ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">ص</div><div><div class="t1">فهرس الكُتيّب</div><div class="t2">INDEX &amp; CONTENTS</div></div></div>
-    <div class="badge"><span>النسخة الشاملة</span></div>
-  </div>
-
-  <div class="sec-title"><span class="num">١</span><span class="txt">محتويات الكُتيّب</span><span class="en">Contents</span></div>
-
-  <ul class="toc-list">
-    <li><span class="n">01</span><span class="t">الغلاف وبيانات المركبة<span class="desc">Owner &amp; vehicle details</span></span><span class="d"></span><span class="p">ص 1</span></li>
-    <li><span class="n">02</span><span class="t">الفهرس ومفتاح الرموز<span class="desc">Index &amp; legend</span></span><span class="d"></span><span class="p">ص 2</span></li>
-    <li><span class="n">03</span><span class="t">الصيانة حسب المسافة<span class="desc">Distance checkpoints · 100,000 km</span></span><span class="d"></span><span class="p">ص 3</span></li>
-    <li><span class="n">04</span><span class="t">الصيانة حسب الزمن<span class="desc">Time checkpoints · 52 weeks</span></span><span class="d"></span><span class="p">ص 4</span></li>
-    <li><span class="n">05</span><span class="t">الفحوصات السريعة<span class="desc">Quick checks</span></span><span class="d"></span><span class="p">ص 5</span></li>
-    <li class="new"><span class="n">06</span><span class="t">كتالوج قطع الغيار والمواصفات<span class="desc">Parts catalog &amp; specifications</span></span><span class="d"></span><span class="p">ص 6</span></li>
-    <li class="new"><span class="n">07</span><span class="t">الضمانات والوثائق الرسمية<span class="desc">Warranties &amp; official documents</span></span><span class="d"></span><span class="p">ص 7</span></li>
-    <li class="new"><span class="n">08</span><span class="t">دليل الورش والأشخاص الموثوقين<span class="desc">Trusted workshops &amp; contacts</span></span><span class="d"></span><span class="p">ص 8</span></li>
-    <li class="new"><span class="n">09</span><span class="t">تتبع تبديل الإطارات<span class="desc">Tire rotation tracking</span></span><span class="d"></span><span class="p">ص 9</span></li>
-    <li><span class="n">10</span><span class="t">سجل الوقود والمصروفات<span class="desc">Fuel &amp; expense log</span></span><span class="d"></span><span class="p">ص 10</span></li>
-    <li><span class="n">11</span><span class="t">سجل الإصلاحات والأعطال<span class="desc">Repairs &amp; breakdown log</span></span><span class="d"></span><span class="p">ص 11</span></li>
-    <li><span class="n">12</span><span class="t">أرقام الطوارئ والمرجع السريع<span class="desc">Emergency &amp; quick reference + بطاقة قص</span></span><span class="d"></span><span class="p">ص 12</span></li>
-    <li class="new"><span class="n">13</span><span class="t">خلاصة السنة وملاحظات<span class="desc">Year-end summary &amp; notes</span></span><span class="d"></span><span class="p">ص 13</span></li>
-    <li class="new"><span class="n">14</span><span class="t">المهام القادمة — حسب المسافة والوقت<span class="desc">Upcoming tasks · by mileage &amp; time</span></span><span class="d"></span><span class="p">ص 14</span></li>
-  </ul>
-
-  <div class="sec-title" style="margin-top:14px"><span class="num">٢</span><span class="txt">مفتاح الرموز والوضعين</span><span class="en">Legend</span></div>
-
-  <div class="quick-grid">
-    <div class="quick-card">
-      <h4>وضعا الاستخدام <span class="badge-sm">MODES</span></h4>
-      <ul class="checks">
-        <li><span style="width:12px;height:12px;background:var(--red);border-radius:2px;flex-shrink:0"></span> <b>وضع التحرير</b> — لتعديل المهام والكيلومترات والدوريات</li>
-        <li><span style="width:12px;height:12px;background:var(--ink);border-radius:2px;flex-shrink:0"></span> <b>وضع العرض</b> — للتأشير على المربعات فقط</li>
-        <li><span style="width:12px;height:12px;background:var(--green);border-radius:2px;flex-shrink:0"></span> العداد الحالي قابل للتعديل دائماً</li>
-        <li><span style="width:12px;height:12px;background:var(--gold);border-radius:2px;flex-shrink:0"></span> ربط ملف = حفظ دائم على جهازك</li>
-      </ul>
-    </div>
-    <div class="quick-card">
-      <h4>رموز الأولوية <span class="badge-sm">PRIORITY</span></h4>
-      <ul class="checks">
-        <li><span class="up-dot p-overdue" style="flex-shrink:0"></span> متأخرة — فات موعدها</li>
-        <li><span class="up-dot p-urgent" style="flex-shrink:0"></span> عاجلة — قريب جداً</li>
-        <li><span class="up-dot p-soon" style="flex-shrink:0"></span> قريبة — خلال فترة قصيرة</li>
-        <li><span class="up-dot p-watch" style="flex-shrink:0"></span> مراقبة</li>
-        <li><span class="up-dot p-ok" style="flex-shrink:0"></span> مبرمجة — على المدى البعيد</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>الفهرس</span></div>
-  <div class="pageno">PAGE 02</div>
-</section>
-
-
-<!-- ===== PAGE 3 — DISTANCE ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">ك</div><div><div class="t1">الصيانة حسب المسافة</div><div class="t2">DISTANCE CHECKPOINTS · 0 — 100,000 KM</div></div></div>
-    <div class="badge"><span>الدورة السنوية</span></div>
-  </div>
-
-  <div class="year-banner">
-    <div class="yb-main"><span class="ico">🛣️</span><span>دورة كاملة — 100,000 كم</span></div>
-    <div class="yb-meta">
-      <span><b>0</b> كم <span class="dot"></span></span>
-      <span><b>100,000</b> كم <span class="dot"></span></span>
-      <span>السنة <b>الأولى</b></span>
-    </div>
-  </div>
-
-  <p style="font-size:10.5px;color:var(--muted);font-weight:600;line-height:1.7;margin:0 0 8px">
-    ⓘ الأرقام داخل الصناديق تمثل <b style="color:var(--red)">آلاف الكيلومترات</b> (10 = 10,000 كم).
-  </p>
-
-  <table class="ud-table">
-    <thead><tr><th class="th-freq">الدورية</th><th class="th-tasks">المهام المشمولة</th><th class="th-checks">علامات التنفيذ (×1000 كم)</th></tr></thead>
-    <tbody id="distBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="distance">+ إضافة صف دورية</button></div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>جدول المسافة</span></div>
-  <div class="pageno">PAGE 03</div>
-</section>
-
-
-<!-- ===== PAGE 4 — TIME ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">ز</div><div><div class="t1">الصيانة حسب الزمن</div><div class="t2">TIME CHECKPOINTS · ONE FULL YEAR</div></div></div>
-    <div class="badge"><span>12 شهراً</span></div>
-  </div>
-
-  <div class="year-banner">
-    <div class="yb-main"><span class="ico">📅</span><span>دورة كاملة — 12 شهراً</span></div>
-    <div class="yb-meta">
-      <span>أسبوعياً <b>52</b> <span class="dot"></span></span>
-      <span>شهرياً <b>12</b> <span class="dot"></span></span>
-      <span>ربع سنوي <b>4</b> <span class="dot"></span></span>
-      <span>نصف سنوي <b>2</b> <span class="dot"></span></span>
-      <span>سنوياً <b>1</b></span>
-    </div>
-  </div>
-
-  <table class="ut-table">
-    <thead><tr><th class="th-freq">الدورية</th><th class="th-task">المهمة</th><th class="th-grid">علامات التنفيذ على مدار العام</th></tr></thead>
-    <tbody id="timeBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="time">+ إضافة صف زمني</button></div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>جدول الزمن</span></div>
-  <div class="pageno">PAGE 04</div>
-</section>
-
-
-<!-- ===== PAGE 5 — QUICK ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">ف</div><div><div class="t1">الفحوصات السريعة</div><div class="t2">QUICK CHECKS</div></div></div>
-    <div class="badge"><span>قبل كل رحلة</span></div>
-  </div>
-
-  <div class="quick-grid" id="quickGrid"></div>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="quick">+ إضافة بطاقة فحص</button></div>
-
-  <div class="sec-title" style="margin-top:16px"><span class="num">٣</span><span class="txt">علامات تحذيرية يجب الانتباه لها</span><span class="en">Warning Signs</span></div>
-
-  <table class="log-table" id="warnTable">
-    <thead><tr><th style="width:32%">العلامة / المؤشر</th><th style="width:30%">السبب المحتمل</th><th style="width:30%">الإجراء</th><th style="width:8%"></th></tr></thead>
-    <tbody id="warnBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="warnings">+ إضافة علامة</button></div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>الفحوصات السريعة</span></div>
-  <div class="pageno">PAGE 05</div>
-</section>
-
-
-<!-- ===== PAGE 6 — CATALOG ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">ق</div><div><div class="t1">كتالوج قطع الغيار والمواصفات</div><div class="t2">PARTS CATALOG &amp; SPECIFICATIONS</div></div></div>
-    <div class="badge"><span>★ صفحة مرجعية</span></div>
-  </div>
-
-  <p style="font-size:11px;color:var(--muted);font-weight:600;line-height:1.7;margin:0 0 8px">
-    املأ هذه البيانات مرة واحدة. عند حاجتك لأي قطعة، كل شيء هنا.
-  </p>
-
-  <div class="catalog-grid" id="catalogGrid"></div>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="catalog">+ إضافة مجموعة</button></div>
-
-  <div class="doc-alert">
-    <div class="da-icon">💡</div>
-    <div class="da-txt"><b>نصيحة ذكية</b>صوّر هذه الصفحة بجوالك. ستحتاجها كثيراً عند الشراء من محلات قطع الغيار.</div>
-  </div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>كتالوج القطع</span></div>
-  <div class="pageno">PAGE 06</div>
-</section>
-
-
-<!-- ===== PAGE 7 — WARRANTIES ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">ض</div><div><div class="t1">الضمانات والوثائق الرسمية</div><div class="t2">WARRANTIES &amp; OFFICIAL DOCUMENTS</div></div></div>
-    <div class="badge"><span>★ صفحة مرجعية</span></div>
-  </div>
-
-  <div class="sec-title"><span class="num">١</span><span class="txt">ضمانات القطع المركّبة</span><span class="en">Part Warranties</span></div>
-
-  <table class="warranty-table">
-    <thead><tr>
-      <th style="width:6%">#</th><th style="width:20%">القطعة</th><th style="width:14%">تاريخ التركيب</th>
-      <th style="width:13%">العداد (كم)</th><th style="width:16%">انتهاء الضمان</th><th style="width:16%">الورشة</th>
-      <th style="width:12%">ملاحظات</th><th style="width:3%"></th>
-    </tr></thead>
-    <tbody id="warrantyBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="warranty">+ إضافة ضمان</button></div>
-
-  <div class="sec-title" style="margin-top:12px"><span class="num">٢</span><span class="txt">الوثائق الرسمية وتواريخ الانتهاء</span><span class="en">Official Documents</span></div>
-
-  <table class="warranty-table">
-    <thead><tr>
-      <th style="width:24%">الوثيقة</th><th style="width:20%">الرقم / المرجع</th><th style="width:16%">تاريخ الإصدار</th>
-      <th style="width:16%">تاريخ الانتهاء</th><th style="width:16%">تنبيه قبل الانتهاء</th><th style="width:8%"></th>
-    </tr></thead>
-    <tbody id="docsBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="docs">+ إضافة وثيقة</button></div>
-
-  <div class="doc-alert">
-    <div class="da-icon">⚠️</div>
-    <div class="da-txt"><b>تنبيه مهم</b>ضع تنبيهاً على جوالك قبل 30 يوماً من كل تاريخ انتهاء.</div>
-  </div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>الضمانات والوثائق</span></div>
-  <div class="pageno">PAGE 07</div>
-</section>
-
-
-<!-- ===== PAGE 8 — WORKSHOPS ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">و</div><div><div class="t1">دليل الورش والأشخاص الموثوقين</div><div class="t2">TRUSTED WORKSHOPS &amp; CONTACTS</div></div></div>
-    <div class="badge"><span>★ صفحة مرجعية</span></div>
-  </div>
-
-  <p style="font-size:11px;color:var(--muted);font-weight:600;line-height:1.7;margin:0 0 8px">
-    املأ هذا الدليل مرة واحدة وحدّثه كلما وجدت شخصاً موثوقاً.
-  </p>
-
-  <div class="workshop-grid" id="workshopGrid"></div>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="workshops">+ إضافة جهة</button></div>
-
-  <div class="sec-title" style="margin-top:12px"><span class="num">٣</span><span class="txt">ملاحظات على الورش</span><span class="en">Notes</span></div>
-  <div class="notes-lines" style="gap:12px"><div class="nl"></div><div class="nl"></div><div class="nl"></div></div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>دليل الورش</span></div>
-  <div class="pageno">PAGE 08</div>
-</section>
-
-
-<!-- ===== PAGE 9 — TIRE ROTATION ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">إ</div><div><div class="t1">تتبّع تبديل الإطارات</div><div class="t2">TIRE ROTATION TRACKING</div></div></div>
-    <div class="badge"><span>★ صفحة مرجعية</span></div>
-  </div>
-
-  <p style="font-size:11px;color:var(--muted);font-weight:600;line-height:1.7;margin:0 0 6px">
-    تبديل الإطارات كل 10,000 كم يطيل عمرها بنسبة تصل إلى 30%.
-  </p>
-
-  <div class="rotation-diagram">
-    <div class="car-diagram">
-      <div class="car-nose">▲ مُقدّمة السيارة ▲</div>
-      <div class="car-rows">
-        <div class="wheel front"><span class="wpos">FL</span>أمامي يسار</div>
-        <div class="wheel front"><span class="wpos">FR</span>أمامي يمين</div>
-      </div>
-      <div class="car-rows">
-        <div class="wheel"><span class="wpos">RL</span>خلفي يسار</div>
-        <div class="wheel"><span class="wpos">RR</span>خلفي يمين</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="rotation-caption"><b>نمط التبديل:</b> الأمامي ← الخلفي (عكسي) · الخلفي ← الأمامي (مباشر) · كل 10,000 كم</div>
-
-  <div class="sec-title" style="margin-top:10px"><span class="num">١</span><span class="txt">سجل عمليات التبديل</span><span class="en">Rotation Log</span></div>
-
-  <table class="log-table">
-    <thead><tr>
-      <th style="width:6%">#</th><th style="width:15%">التاريخ</th><th style="width:14%">العداد (كم)</th>
-      <th style="width:27%">العملية (النمط)</th><th style="width:18%">الورشة</th><th style="width:16%">ملاحظات</th><th style="width:4%"></th>
-    </tr></thead>
-    <tbody id="rotationBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="rotations">+ إضافة عملية</button></div>
-
-  <div class="sec-title" style="margin-top:8px"><span class="num">٢</span><span class="txt">سجل تبديل الإطارات</span><span class="en">Tire Replacement</span></div>
-
-  <table class="log-table">
-    <thead><tr>
-      <th style="width:6%">#</th><th style="width:16%">التاريخ</th><th style="width:15%">العداد (كم)</th>
-      <th style="width:24%">الماركة والمقاس</th><th style="width:19%">الورشة</th><th style="width:16%">التكلفة</th><th style="width:4%"></th>
-    </tr></thead>
-    <tbody id="replacementBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="replacements">+ إضافة إطار</button></div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>تبديل الإطارات</span></div>
-  <div class="pageno">PAGE 09</div>
-</section>
-
-
-<!-- ===== PAGE 10 — FUEL ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">و</div><div><div class="t1">سجل الوقود والمصروفات</div><div class="t2">FUEL &amp; EXPENSE LOG · 1 YEAR</div></div></div>
-    <div class="badge"><span>متابعة اقتصادية</span></div>
-  </div>
-
-  <table class="log-table">
-    <thead><tr>
-      <th style="width:6%">#</th><th style="width:13%">التاريخ</th><th style="width:14%">العداد (كم)</th>
-      <th style="width:11%">اللترات</th><th style="width:12%">السعر/لتر</th><th style="width:12%">المبلغ</th>
-      <th style="width:11%">كم/لتر</th><th style="width:17%">ملاحظات</th><th style="width:4%"></th>
-    </tr></thead>
-    <tbody id="fuelBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="fuel">+ إضافة تعبئة</button></div>
-
-  <div class="info-boxes" style="margin-top:10px">
-    <div class="info-box">
-      <h4>ملخص الاستهلاك</h4>
-      <div class="info-line"><span class="l">متوسط الاستهلاك</span><input class="inp" data-path="fuelSummary.avg"><span class="u">كم/لتر</span></div>
-      <div class="info-line"><span class="l">أعلى استهلاك</span><input class="inp" data-path="fuelSummary.max"><span class="u">كم/لتر</span></div>
-      <div class="info-line"><span class="l">أقل استهلاك</span><input class="inp" data-path="fuelSummary.min"><span class="u">كم/لتر</span></div>
-      <div class="info-line"><span class="l">إجمالي الوقود</span><input class="inp" data-path="fuelSummary.total"><span class="u">ريال</span></div>
-    </div>
-    <div class="info-box">
-      <h4>ملاحظات على الوقود</h4>
-      <div class="notes-lines" style="gap:12px"><div class="nl"></div><div class="nl"></div><div class="nl"></div></div>
-    </div>
-  </div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>سجل الوقود</span></div>
-  <div class="pageno">PAGE 10</div>
-</section>
-
-
-<!-- ===== PAGE 11 — REPAIRS ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">إ</div><div><div class="t1">سجل الإصلاحات والأعطال</div><div class="t2">REPAIRS &amp; BREAKDOWN LOG</div></div></div>
-    <div class="badge"><span>ذاكرة السيارة</span></div>
-  </div>
-
-  <table class="log-table">
-    <thead><tr>
-      <th style="width:6%">#</th><th style="width:12%">التاريخ</th><th style="width:11%">العداد</th>
-      <th style="width:28%">وصف العطل / الإصلاح</th><th style="width:14%">الورشة</th>
-      <th style="width:11%">التكلفة</th><th style="width:14%">ملاحظات</th><th style="width:4%"></th>
-    </tr></thead>
-    <tbody id="repairBody"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="repairs">+ إضافة إصلاح</button></div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>سجل الإصلاحات</span></div>
-  <div class="pageno">PAGE 11</div>
-</section>
-
-
-<!-- ===== PAGE 12 — EMERGENCY ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">ط</div><div><div class="t1">أرقام الطوارئ والمرجع السريع</div><div class="t2">EMERGENCY &amp; QUICK REFERENCE</div></div></div>
-    <div class="badge"><span>+ بطاقة قص ✂️</span></div>
-  </div>
-
-  <div class="info-boxes">
-    <div class="info-box"><h4>أرقام الطوارئ العامة</h4><div id="emergencyList"></div></div>
-    <div class="info-box"><h4>جهات الاتصال الشخصية</h4><div id="contactsList"></div></div>
-  </div>
-
-  <div class="sec-title" style="margin-top:12px"><span class="num">١</span><span class="txt">ضغط الإطارات الموصى به (PSI)</span><span class="en">Tire Pressure</span></div>
-
-  <div class="tire-box" id="tireBox"></div>
-
-  <div class="cutout-card">
-    <div class="cutout-inner" id="cutoutInner"></div>
-  </div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>المرجع السريع</span></div>
-  <div class="pageno">PAGE 12</div>
-</section>
-
-
-<!-- ===== PAGE 13 — SUMMARY ===== -->
-<section class="page">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">خ</div><div><div class="t1">خلاصة السنة وملاحظات</div><div class="t2">YEAR-END SUMMARY &amp; NOTES</div></div></div>
-    <div class="badge"><span>★ صفحة مرجعية</span></div>
-  </div>
-
-  <div class="sec-title"><span class="num">١</span><span class="txt">خلاصة السنة الأولى</span><span class="en">Annual Summary</span></div>
-
-  <div class="summary-grid">
-    <div class="summary-item"><div class="si-lbl">📏 إجمالي الكيلومترات المقطوعة</div><input class="inp" data-path="summary.km"><div class="si-unit">كم</div></div>
-    <div class="summary-item"><div class="si-lbl">⛽ إجمالي مصروف الوقود</div><input class="inp" data-path="summary.fuel"><div class="si-unit">ريال</div></div>
-    <div class="summary-item"><div class="si-lbl">🔧 إجمالي مصروف الصيانة</div><input class="inp" data-path="summary.maint"><div class="si-unit">ريال</div></div>
-    <div class="summary-item"><div class="si-lbl">🛠️ إجمالي مصروف الإصلاحات</div><input class="inp" data-path="summary.repair"><div class="si-unit">ريال</div></div>
-    <div class="summary-item"><div class="si-lbl">💰 المجموع الكلي</div><input class="inp" data-path="summary.total"><div class="si-unit">ريال</div></div>
-    <div class="summary-item"><div class="si-lbl">🏢 عدد مرات دخول الورشة</div><input class="inp" data-path="summary.visits"><div class="si-unit">مرة</div></div>
-    <div class="summary-item"><div class="si-lbl">📄 أعلى فاتورة</div><input class="inp" data-path="summary.maxbill"><div class="si-unit">ريال</div></div>
-    <div class="summary-item"><div class="si-lbl">📊 متوسط التكلفة الشهرية</div><input class="inp" data-path="summary.avgmonth"><div class="si-unit">ريال</div></div>
-  </div>
-
-  <div class="sec-title"><span class="num">٢</span><span class="txt">تقييم ذاتي لحالة السيارة</span><span class="en">Self Assessment</span></div>
-
-  <div class="self-rating">
-    <div class="rating-item"><div class="r-star">★★★</div><div class="r-lbl">ممتازة</div><input type="checkbox" class="cb" data-path="rating.excellent"></div>
-    <div class="rating-item"><div class="r-star">★★</div><div class="r-lbl">جيدة</div><input type="checkbox" class="cb" data-path="rating.good"></div>
-    <div class="rating-item"><div class="r-star">★</div><div class="r-lbl">تحتاج صيانة</div><input type="checkbox" class="cb" data-path="rating.needs"></div>
-    <div class="rating-item"><div class="r-star">—</div><div class="r-lbl">فحص شامل</div><input type="checkbox" class="cb" data-path="rating.full"></div>
-  </div>
-
-  <div class="carry-over">
-    <h4>🔄 نقل البيانات إلى الكُتيّب التالي (السنة الثانية)</h4>
-    <div class="co-grid">
-      <div class="co-line"><span class="l">آخر قراءة للعداد</span><input class="inp" data-path="carry.odo"></div>
-      <div class="co-line"><span class="l">تاريخ نهاية الكُتيّب</span><input class="inp" data-path="carry.end"></div>
-      <div class="co-line"><span class="l">البطارية — عمرها الحالي</span><input class="inp" data-path="carry.battery"></div>
-      <div class="co-line"><span class="l">الإطارات — عمرها الحالي</span><input class="inp" data-path="carry.tires"></div>
-      <div class="co-line"><span class="l">حزام التوقيت — هل تم؟</span><input class="inp" data-path="carry.timing"></div>
-      <div class="co-line"><span class="l">سائل التبريد — متى؟</span><input class="inp" data-path="carry.coolant"></div>
-    </div>
-  </div>
-
-  <div class="sec-title"><span class="num">٣</span><span class="txt">أهم 3 أشياء للمتابعة في السنة القادمة</span><span class="en">Top 3 to Watch</span></div>
-
-  <table class="log-table">
-    <thead><tr>
-      <th style="width:7%">#</th><th style="width:30%">البند / القطعة</th>
-      <th style="width:20%">الحالة الحالية</th><th style="width:39%">ملاحظات</th><th style="width:4%"></th>
-    </tr></thead>
-    <tbody id="top3Body"></tbody>
-  </table>
-  <div class="row-actions"><button class="add-btn" data-action="addRow" data-coll="top3">+ إضافة بند</button></div>
-
-  <div class="ornament" style="margin-top:10px"></div>
-
-  <div style="text-align:center;margin-top:4px">
-    <p style="font-family:'Amiri',serif;font-size:21px;color:var(--red);font-weight:700;margin:0">« السلامة أولاً »</p>
-    <p style="font-size:11px;color:var(--muted);font-weight:700;margin-top:5px;letter-spacing:3px">SAFETY FIRST — END OF ONE-YEAR CYCLE</p>
-  </div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>خلاصة السنة</span></div>
-  <div class="pageno">PAGE 13</div>
-</section>
-
-
-<!-- ===== PAGE 14 — UPCOMING ===== -->
-<section class="page" id="upcomingPage">
-  <div class="masthead">
-    <div class="mh-left"><div class="crest">م</div><div><div class="t1">المهام القادمة</div><div class="t2">UPCOMING TASKS · BY MILEAGE &amp; TIME</div></div></div>
-    <div class="badge"><span>لوحة المتابعة</span></div>
-  </div>
-
-  <p style="font-size:11px;color:var(--muted);font-weight:600;line-height:1.7;margin:0 0 10px">
-    أدخل <b style="color:var(--red)">العداد الحالي</b> و<b style="color:var(--red)">تاريخ بدء الكُتيّب</b> — وستُحدَّث القائمة تلقائياً بترتيب الأولوية.
-  </p>
-
-  <div class="up-inputs">
-    <div class="up-inp-item">
-      <label>🚗 العداد الحالي</label>
-      <div class="up-line">
-        <input type="text" inputmode="numeric" class="inp" data-path="currentKm" data-always-edit placeholder="0">
-        <span class="up-unit">كم</span>
-      </div>
-    </div>
-    <div class="up-inp-item">
-      <label>📅 تاريخ اليوم</label>
-      <div class="up-line"><input type="date" class="inp" data-path="currentDate" data-always-edit></div>
-      <span class="up-hint">اتركه فارغاً = تاريخ اليوم</span>
-    </div>
-    <div class="up-inp-item">
-      <label>🏁 تاريخ بدء الكُتيّب</label>
-      <div class="up-line"><input type="text" class="inp" data-path="meta.start" placeholder="DD/MM/YYYY"></div>
-      <span class="up-hint">مثال: 15/01/2025</span>
-    </div>
-  </div>
-
-  <div class="sec-title" style="margin-top:6px"><span class="num">١</span><span class="txt">المهام القادمة حسب المسافة</span><span class="en">By Mileage</span></div>
-
-  <table class="upcoming-table">
-    <thead><tr>
-      <th style="width:8%">الحالة</th>
-      <th style="width:40%">المهام</th>
-      <th style="width:16%">القراءة المطلوبة</th>
-      <th style="width:22%">المتبقي</th>
-      <th style="width:14%">الدورية</th>
-    </tr></thead>
-    <tbody id="upcomingKmBody"></tbody>
-  </table>
-
-  <div class="sec-title" style="margin-top:12px"><span class="num">٢</span><span class="txt">المهام القادمة حسب الوقت</span><span class="en">By Time</span></div>
-
-  <table class="upcoming-table">
-    <thead><tr>
-      <th style="width:8%">الحالة</th>
-      <th style="width:40%">المهام</th>
-      <th style="width:16%">تاريخ الاستحقاق</th>
-      <th style="width:22%">المتبقي</th>
-      <th style="width:14%">الدورية</th>
-    </tr></thead>
-    <tbody id="upcomingTimeBody"></tbody>
-  </table>
-
-  <div class="up-legend" style="margin-top:10px">
-    <span><span class="up-dot p-overdue"></span> متأخرة</span>
-    <span><span class="up-dot p-urgent"></span> عاجلة</span>
-    <span><span class="up-dot p-soon"></span> قريبة</span>
-    <span><span class="up-dot p-watch"></span> مراقبة</span>
-    <span><span class="up-dot p-ok"></span> مبرمجة</span>
-  </div>
-
-  <div class="footer-mark"><span>CAR MAINTENANCE LOGBOOK</span><span>المهام القادمة</span></div>
-  <div class="pageno">PAGE 14</div>
-</section>
-
-</main>
+  <div class="sheet-body" id="sheetBody"></div>
+  <div class="sheet-footer" id="sheetFooter"></div>
+</div>
+<div class="toast" id="toast"></div>
 
 <script>
 /* =========================================================
-   CONSTANTS & DEFAULTS
+   DATA MODEL
    ========================================================= */
-const LS_KEY = 'car_logbook_v1';
-const MODE_KEY = 'car_logbook_mode';
-const IDB_NAME = 'car_logbook_fs';
-const IDB_STORE = 'handles';
-const IDB_KEY = 'saveFile';
-
-const GRID_SIZES = { weeks:52, months:12, quarters:4, halves:2, annual:1 };
-const GRID_LABELS = { weeks:'أسبوعي (52)', months:'شهري (12)', quarters:'ربع سنوي (4)', halves:'نصف سنوي (2)', annual:'سنوي (1)' };
-const PERIOD_DAYS = { weeks:7, months:30, quarters:90, halves:180, annual:365 };
-
-function mkRows(n, fields){ return Array.from({length:n}, () => { const o={}; fields.forEach(f=>o[f]=''); return o; }); }
-function kmList(arr){ return arr.map(v => ({ v:String(v), done:false })); }
-
-const DEFAULT = {
+const LS='car_logbook_v2';
+const mk=(n,f)=>{const a=[];for(let i=0;i<n;i++){const o={};f.forEach(x=>o[x]='');a.push(o);}return a;};
+const kmL=a=>a.map(v=>({v:String(v),done:false}));
+const DEFAULT={
   meta:{owner:'',phone:'',car:'',year:'',plate:'',vin:'',odo:'',start:''},
-  currentKm:'',
-  currentDate:'',
+  currentKm:'',currentDate:'',
   distance:[
-    {interval:'10K', count:'10 مرات',
-     tasks:['🛢️ زيت وفلتر المحرك','🛞 تدوير الإطارات وترصيصها','💨 منظف البخاخات','🛑 فحص الفرامل'],
-     kms: kmList([10,20,30,40,50,60,70,80,90,100])},
-    {interval:'20K', count:'5 مرات',
-     tasks:['🌬️ فلتر هواء المحرك','❄️ فلتر مكيف المقصورة','🔍 فحص التيل والهوبات'],
-     kms: kmList([20,40,60,80,100])},
-    {interval:'40K', count:'مرتان',
-     tasks:['🧴 زيت الفرامل','⚡ شمعات الإشعال (البواجي)','⛽ فلتر البنزين'],
-     kms: kmList([40,80])},
-    {interval:'60K', count:'مرة واحدة',
-     tasks:['⚙️ زيت ناقل الحركة','🌡️ سائل التبريد','🎯 زيت المقود'],
-     kms: kmList([60])},
-    {interval:'80K', count:'مرة واحدة',
-     tasks:['🔗 سير المحرك'],
-     kms: kmList([80])},
-    {interval:'100K', count:'مرة واحدة',
-     tasks:['⏱️ حزام التوقيت','🔧 زيت الدفرنس'],
-     kms: kmList([100])}
+    {interval:'10K',count:'10 مرات',tasks:['🛢️ زيت وفلتر المحرك','🛞 تدوير الإطارات','💨 منظف البخاخات','🛑 فحص الفرامل'],kms:kmL([10,20,30,40,50,60,70,80,90,100])},
+    {interval:'20K',count:'5 مرات',tasks:['🌬️ فلتر هواء المحرك','❄️ فلتر مكيف المقصورة','🔍 فحص التيل والهوبات'],kms:kmL([20,40,60,80,100])},
+    {interval:'40K',count:'مرتان',tasks:['🧴 زيت الفرامل','⚡ شمعات الإشعال','⛽ فلتر البنزين'],kms:kmL([40,80])},
+    {interval:'60K',count:'مرة',tasks:['⚙️ زيت ناقل الحركة','🌡️ سائل التبريد','🎯 زيت المقود'],kms:kmL([60])},
+    {interval:'80K',count:'مرة',tasks:['🔗 سير المحرك'],kms:kmL([80])},
+    {interval:'100K',count:'مرة',tasks:['⏱️ حزام التوقيت','🔧 زيت الدفرنس'],kms:kmL([100])}
   ],
   time:[
-    {freq:'أسبوعياً', count:'52 مرة', gridType:'weeks', grid:Array(52).fill(false),
-     tasks:[{icon:'🛞',name:'فحص ضغط الإطارات'},{icon:'💧',name:'فحص مستوى الزيوت والسوائل'}]},
-    {freq:'شهرياً', count:'12 مرة', gridType:'months', grid:Array(12).fill(false),
-     tasks:[{icon:'🚿',name:'غسيل السيارة الخارجي'},{icon:'🧹',name:'تنظيف السيارة من الداخل'},{icon:'💡',name:'فحص الإضاءة والمساحات'}]},
-    {freq:'كل ٣ أشهر', count:'4 مرات', gridType:'quarters', grid:Array(4).fill(false),
-     tasks:[{icon:'🛑',name:'فحص الفرامل والمسافات'},{icon:'🧴',name:'تشحيم الأجزاء المتحركة'}]},
-    {freq:'كل ٦ أشهر', count:'مرتان', gridType:'halves', grid:Array(2).fill(false),
-     tasks:[{icon:'🛢️',name:'تغيير زيت المحرك (زمنياً)'},{icon:'🔋',name:'فحص البطارية والأطراف'}]},
-    {freq:'سنوياً', count:'مرة واحدة', gridType:'annual', grid:Array(1).fill(false),
-     tasks:[{icon:'❄️',name:'فحص وتنظيف المكيف'},{icon:'📄',name:'تجديد التأمين والاستمارة'},{icon:'🔍',name:'فحص شامل في الورشة'}]}
-  ],
-  quick:[
-    {title:'قبل الانطلاق', badge:'PRE-DRIVE', items:[
-      {text:'فحص الإطارات بصرياً', done:false},
-      {text:'فحص الإضاءة الأمامية والخلفية', done:false},
-      {text:'ضبط المرايا والمقعد', done:false},
-      {text:'فحص مؤشرات لوحة القيادة', done:false},
-      {text:'التأكد من ربط حزام الأمان', done:false}
-    ]},
-    {title:'أسبوعياً', badge:'WEEKLY', items:[
-      {text:'قياس ضغط الإطارات', done:false},
-      {text:'فحص مستوى زيت المحرك', done:false},
-      {text:'فحص ماء الرادياتير', done:false},
-      {text:'فحص ماء المساحات', done:false},
-      {text:'ملاحظة أي تسريب أسفل السيارة', done:false}
-    ]},
-    {title:'شهرياً', badge:'MONTHLY', items:[
-      {text:'فحص تآكل المساحات', done:false},
-      {text:'فحص زيت الفرامل', done:false},
-      {text:'فحص الإطارات من الداخل', done:false},
-      {text:'تنظيف المكيف والفتحات', done:false},
-      {text:'فحص البطارية والأقطاب', done:false},
-      {text:'فحص مستوى سائل التبريد', done:false}
-    ]},
-    {title:'موسمياً', badge:'SEASONAL', items:[
-      {text:'تبديل إطارات الشتاء / الصيف', done:false},
-      {text:'فحص المكيف قبل الصيف', done:false},
-      {text:'فحص التدفئة قبل الشتاء', done:false},
-      {text:'فحص شمعات الإشعال', done:false},
-      {text:'معالجة الصدأ المبكر', done:false}
-    ]}
+    {freq:'أسبوعياً',count:'52 مرة',gridType:'weeks',grid:Array(52).fill(false),tasks:[{icon:'🛞',name:'فحص ضغط الإطارات'},{icon:'💧',name:'فحص الزيوت'}]},
+    {freq:'شهرياً',count:'12 مرة',gridType:'months',grid:Array(12).fill(false),tasks:[{icon:'🚿',name:'غسيل السيارة'},{icon:'🧹',name:'تنظيف الداخل'},{icon:'💡',name:'فحص الإضاءة'}]},
+    {freq:'كل ٣ أشهر',count:'4 مرات',gridType:'quarters',grid:Array(4).fill(false),tasks:[{icon:'🛑',name:'فحص الفرامل'},{icon:'🧴',name:'تشحيم الأجزاء'}]},
+    {freq:'كل ٦ أشهر',count:'مرتان',gridType:'halves',grid:Array(2).fill(false),tasks:[{icon:'🛢️',name:'تغيير الزيت'},{icon:'🔋',name:'فحص البطارية'}]},
+    {freq:'سنوياً',count:'مرة',gridType:'annual',grid:Array(1).fill(false),tasks:[{icon:'❄️',name:'فحص المكيف'},{icon:'📄',name:'تجديد التأمين'}]}
   ],
   warnings:[
-    {sign:'🔴 لمبة الزيت', cause:'نقص زيت / مضخة', action:'توقف فوراً'},
-    {sign:'🔋 لمبة البطارية', cause:'الدينمو / السير', action:'اذهب للورشة'},
-    {sign:'🌡️ ارتفاع الحرارة', cause:'سائل التبريد / مضخة', action:'توقف فوراً'},
-    {sign:'🛑 صوت صرير عند الفرملة', cause:'تآكل التيل', action:'افحص الفرامل'},
-    {sign:'〰️ رجّة في المقود', cause:'ترصيص / إطارات', action:'افحص الترصيص'},
-    {sign:'💨 دخان أسود / أزرق', cause:'محرك / بخاخات', action:'افحص فوراً'}
+    {sign:'🔴 لمبة الزيت',cause:'نقص زيت / مضخة',action:'توقف فوراً'},
+    {sign:'🔋 لمبة البطارية',cause:'الدينمو / السير',action:'اذهب للورشة'},
+    {sign:'🌡️ ارتفاع الحرارة',cause:'سائل التبريد',action:'توقف فوراً'},
+    {sign:'🛑 صرير الفرملة',cause:'تآكل التيل',action:'افحص الفرامل'}
   ],
   catalog:[
-    {num:'١', title:'الفلاتر', lines:[{l:'فلتر الزيت', v:''},{l:'فلتر الهواء', v:''},{l:'فلتر المكيف', v:''},{l:'فلتر البنزين', v:''}]},
-    {num:'٢', title:'المحرك والزيوت', lines:[{l:'نوع الزيت', v:''},{l:'اللزوجة (5W-30)', v:''},{l:'سعة الزيت (لتر)', v:''},{l:'شمعات الإشعال', v:''}]},
-    {num:'٣', title:'الإطارات والعجلات', lines:[{l:'مقاس الإطارات', v:''},{l:'الشركة المصنّعة', v:''},{l:'تاريخ الإطارات', v:''},{l:'ضغط الهواء (PSI)', v:''}]},
-    {num:'٤', title:'البطارية', lines:[{l:'النوع / الرقم', v:''},{l:'السعة AH / CCA', v:''},{l:'تاريخ التركيب', v:''},{l:'الضمان حتى', v:''}]},
-    {num:'٥', title:'المساحات والإضاءة', lines:[{l:'مساحة يمين', v:''},{l:'مساحة يسار', v:''},{l:'الأنوار الأمامية', v:''},{l:'أنوار الفرامل', v:''}]},
-    {num:'٦', title:'السوائل', lines:[{l:'سائل التبريد', v:''},{l:'زيت الفرامل', v:''},{l:'زيت ناقل الحركة', v:''},{l:'نوع الوقود', v:''}]}
+    {num:'١',title:'الفلاتر',lines:[{l:'فلتر الزيت',v:''},{l:'فلتر الهواء',v:''},{l:'فلتر المكيف',v:''},{l:'فلتر البنزين',v:''}]},
+    {num:'٢',title:'المحرك والزيوت',lines:[{l:'نوع الزيت',v:''},{l:'اللزوجة',v:''},{l:'السعة',v:''},{l:'البواجي',v:''}]},
+    {num:'٣',title:'الإطارات',lines:[{l:'المقاس',v:''},{l:'الشركة',v:''},{l:'التاريخ',v:''},{l:'PSI',v:''}]},
+    {num:'٤',title:'البطارية',lines:[{l:'النوع',v:''},{l:'السعة',v:''},{l:'التركيب',v:''},{l:'الضمان',v:''}]}
   ],
-  warranty: mkRows(6, ['part','date','odo','until','shop','notes']),
-  docs: [
-    {name:'📄 التأمين', ref:'', issued:'', expires:'', alert:''},
-    {name:'📋 الاستمارة (رخصة السير)', ref:'', issued:'', expires:'', alert:''},
-    {name:'✅ الفحص الدوري', ref:'', issued:'', expires:'', alert:''},
-    {name:'🪪 رخصة القيادة', ref:'', issued:'', expires:'', alert:''},
-    {name:'💳 بطاقة الوقود', ref:'', issued:'', expires:'', alert:''},
-    {name:'📞 المساعدة على الطريق', ref:'', issued:'', expires:'', alert:''}
+  warranty:mk(5,['part','date','odo','until','shop','notes']),
+  docs:[
+    {name:'📄 التأمين',ref:'',issued:'',expires:'',alert:''},
+    {name:'📋 الاستمارة',ref:'',issued:'',expires:'',alert:''},
+    {name:'✅ الفحص الدوري',ref:'',issued:'',expires:'',alert:''}
   ],
   workshops:[
-    {icon:'🔧', title:'ميكانيكي عام', sub:'GENERAL MECHANIC', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]},
-    {icon:'⚡', title:'كهربائي سيارات', sub:'AUTO ELECTRICIAN', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]},
-    {icon:'🛞', title:'بنشر / إطارات', sub:'TIRE SHOP', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]},
-    {icon:'🎨', title:'سمكري / دهان', sub:'BODY & PAINT', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]},
-    {icon:'❄️', title:'مكيفات', sub:'AC SPECIALIST', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]},
-    {icon:'🛢️', title:'تغيير زيت سريع', sub:'OIL CHANGE', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]},
-    {icon:'🚛', title:'سطحه / ونش', sub:'TOW TRUCK', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]},
-    {icon:'🛡️', title:'شركة التأمين', sub:'INSURANCE', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'رقم البوليصة',v:''},{l:'نوع التأمين',v:''}]}
+    {icon:'🔧',title:'ميكانيكي',sub:'MECHANIC',lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''}]},
+    {icon:'⚡',title:'كهربائي',sub:'ELECTRICIAN',lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''}]},
+    {icon:'🛞',title:'بنشر',sub:'TIRES',lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''}]},
+    {icon:'🎨',title:'سمكري',sub:'BODY',lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''}]}
   ],
-  rotations: mkRows(8, ['date','odo','pattern','shop','notes']),
-  replacements: mkRows(4, ['date','odo','brand','shop','cost']),
-  fuel: mkRows(16, ['date','odo','liters','price','amount','kmpl','notes']),
-  repairs: mkRows(16, ['date','odo','desc','shop','cost','notes']),
-  fuelSummary:{avg:'', max:'', min:'', total:''},
+  rotations:mk(5,['date','odo','pattern','shop','notes']),
+  replacements:mk(3,['date','odo','brand','shop','cost']),
+  fuel:mk(12,['date','odo','liters','price','amount','kmpl','notes']),
+  repairs:mk(12,['date','odo','desc','shop','cost','notes']),
   emergency:[
-    {l:'الدفاع المدني', v:'998'},{l:'الشرطة / المرور', v:'999'},{l:'الإسعاف', v:'997'},
-    {l:'الطريق السريع', v:'996'},{l:'كهرباء السيارة', v:''},{l:'ورشة الطوارئ', v:''}
-  ],
-  contacts:[
-    {l:'الورشة المفضلة', v:''},{l:'كهربائي', v:''},{l:'ميكانيكي', v:''},
-    {l:'بنشر / إطارات', v:''},{l:'شركة التأمين', v:''},{l:'رقم بوليصة التأمين', v:''}
+    {l:'🚨 الدفاع المدني',v:'998'},{l:'👮 الشرطة',v:'999'},{l:'🚑 الإسعاف',v:'997'},
+    {l:'🛣️ الطريق السريع',v:'996'},{l:'⚡ كهربائي',v:''},{l:'🔧 ورشة',v:''}
   ],
   tires:[
-    {l:'الإطار الأمامي الأيمن (FR)', v:''},{l:'الإطار الأمامي الأيسر (FL)', v:''},
-    {l:'الإطار الخلفي الأيمن (RR)', v:''},{l:'الإطار الخلفي الأيسر (RL)', v:''},
-    {l:'الإطار الاحتياطي (السبير)', v:''}
-  ],
-  cutout:[
-    {l:'اسم المالك', v:''},{l:'رقم الجوال', v:''},{l:'نوع السيارة', v:''},{l:'رقم اللوحة', v:''},
-    {l:'رقم الهيكل (VIN)', v:''},{l:'ضغط الإطارات', v:''},{l:'نوع الوقود', v:''},{l:'فصيلة الدم', v:''}
-  ],
-  summary:{km:'', fuel:'', maint:'', repair:'', total:'', visits:'', maxbill:'', avgmonth:''},
-  rating:{excellent:false, good:false, needs:false, full:false},
-  carry:{odo:'', end:'', battery:'', tires:'', timing:'', coolant:''},
-  top3: mkRows(3, ['item','status','notes'])
+    {l:'الأمامي يمين (FR)',v:''},{l:'الأمامي يسار (FL)',v:''},
+    {l:'الخلفي يمين (RR)',v:''},{l:'الخلفي يسار (RL)',v:''},{l:'الاحتياطي',v:''}
+  ]
 };
-
-/* ---- helpers ---- */
-function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function getPath(obj, path){ return path.split('.').reduce((o,k) => (o == null ? undefined : o[k]), obj); }
-function setPath(obj, path, val){
-  const parts = path.split('.'); let cur = obj;
-  for(let i=0;i<parts.length-1;i++) cur = cur[parts[i]];
-  cur[parts[parts.length-1]] = val;
-}
-function deepMerge(base, over){
-  if(Array.isArray(base)) return Array.isArray(over) ? over : base;
-  if(base && typeof base === 'object'){
-    const out = {...base};
-    if(over && typeof over === 'object'){
-      for(const k in base) if(k in over) out[k] = deepMerge(base[k], over[k]);
-      for(const k in over) if(!(k in base)) out[k] = over[k];
-    }
-    return out;
-  }
-  return over === undefined ? base : over;
-}
-function inp(path, val, cls='', ph='', always=false){
-  return `<input class="inp ${cls}" data-path="${path}" value="${esc(val)}" placeholder="${esc(ph)}"${always ? ' data-always-edit' : ''}>`;
-}
-function cb(path, checked, cls='cb'){ return `<input type="checkbox" class="${cls}" data-path="${path}" ${checked ? 'checked' : ''}>`; }
-function delBtn(coll, i, j){
-  const jAttr = (j === undefined) ? '' : ` data-j="${j}"`;
-  return `<button class="del-btn" data-action="delRow" data-coll="${coll}" data-i="${i}"${jAttr} title="حذف">×</button>`;
-}
-function fmtNum(n){ return Math.round(n).toLocaleString('en-US'); }
-function fmtDate(d){
-  if(!d || isNaN(d)) return '—';
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-}
-function parseDate(str){
-  if(!str) return null;
-  str = String(str).trim();
-  let m = str.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
-  if(m) return new Date(+m[1], +m[2]-1, +m[3]);
-  m = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})$/);
-  if(m){ let y=+m[3]; if(y<100) y+=2000; return new Date(y, +m[2]-1, +m[1]); }
-  return null;
-}
-function todayIso(){
-  const t = new Date();
-  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-}
-function shortTask(text){ return String(text || '').replace(/^[\p{Emoji}\u200d\ufe0f\s]+/u, '').trim() || String(text || ''); }
+const GRID_SIZES={weeks:52,months:12,quarters:4,halves:2,annual:1};
+const PERIOD_DAYS={weeks:7,months:30,quarters:90,halves:180,annual:365};
 
 /* =========================================================
-   STATE
+   STATE & STORAGE
    ========================================================= */
-let S = structuredClone(DEFAULT);
-let saveTimer = null;
-let fileHandle = null;
-let fileState = 'unlinked'; // 'unlinked' | 'linked' | 'needs-perm' | 'unsupported' | 'error'
-
-function loadStateFromLocal(){
-  try{
-    const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return structuredClone(DEFAULT);
-    return deepMerge(structuredClone(DEFAULT), JSON.parse(raw));
-  }catch(e){ return structuredClone(DEFAULT); }
+let S=loadState();
+function loadState(){
+  try{const r=localStorage.getItem(LS);if(!r)return structuredClone(DEFAULT);return merge(structuredClone(DEFAULT),JSON.parse(r));}
+  catch(e){return structuredClone(DEFAULT);}
 }
-
-function saveToLocal(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){ console.warn(e); }
+function saveState(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function merge(base,over){
+  if(Array.isArray(base))return Array.isArray(over)?over:base;
+  if(base&&typeof base==='object'){
+    const o={...base};
+    if(over&&typeof over==='object'){
+      for(const k in base)if(k in over)o[k]=merge(base[k],over[k]);
+      for(const k in over)if(!(k in base))o[k]=over[k];
+    }
+    return o;
+  }
+  return over===undefined?base:over;
+}
+function getP(obj,path){return path.split('.').reduce((o,k)=>o==null?undefined:o[k],obj);}
+function setP(obj,path,val){
+  const p=path.split('.');let c=obj;
+  for(let i=0;i<p.length-1;i++)c=c[p[i]];
+  c[p[p.length-1]]=val;
 }
 
 /* =========================================================
-   FILE SYSTEM ACCESS API (persistent file save)
+   NAVIGATION
    ========================================================= */
-const FS_SUPPORTED = typeof window.showSaveFilePicker === 'function';
+let currentScreen='home';
+let currentTaskView='km';
+let currentLogView='fuel';
 
-/* --- IndexedDB for persisting the file handle --- */
-function idbOpen(){
-  return new Promise((res, rej) => {
-    const req = indexedDB.open(IDB_NAME, 1);
-    req.onupgradeneeded = () => { if(!req.result.objectStoreNames.contains(IDB_STORE)) req.result.createObjectStore(IDB_STORE); };
-    req.onsuccess = () => res(req.result);
-    req.onerror = () => rej(req.error);
-  });
-}
-async function idbSet(key, val){
-  const db = await idbOpen();
-  return new Promise((res, rej) => {
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    tx.objectStore(IDB_STORE).put(val, key);
-    tx.oncomplete = () => res();
-    tx.onerror = () => rej(tx.error);
-  });
-}
-async function idbGet(key){
-  const db = await idbOpen();
-  return new Promise((res, rej) => {
-    const tx = db.transaction(IDB_STORE, 'readonly');
-    const req = tx.objectStore(IDB_STORE).get(key);
-    req.onsuccess = () => res(req.result);
-    req.onerror = () => rej(req.error);
-  });
-}
-async function idbDel(key){
-  const db = await idbOpen();
-  return new Promise((res, rej) => {
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    tx.objectStore(IDB_STORE).delete(key);
-    tx.oncomplete = () => res();
-    tx.onerror = () => rej(tx.error);
-  });
+document.querySelectorAll('.nav-btn').forEach(b=>{
+  b.addEventListener('click',()=>go(b.dataset.screen));
+});
+function go(screen){
+  currentScreen=screen;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.dataset.screen===screen));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
+  const titles={home:'كتيّب السيارة',tasks:'المهام',logs:'السجلات',ref:'المراجع',settings:'الإعدادات'};
+  document.getElementById('headerTitle').textContent=titles[screen]||'كتيّب السيارة';
+  const subs={home:'الصيانة الذكية',tasks:'متابعة المهام',logs:'سجل الوقود والإصلاحات',ref:'مرجع سريع',settings:'بياناتك وإعداداتك'};
+  document.getElementById('headerSub').textContent=subs[screen]||'';
+  document.getElementById('fab').classList.toggle('hidden',!(screen==='logs'));
+  renderScreen(screen);
 }
 
-/* --- Write current state to the linked file --- */
-async function writeToFile(){
-  if(!fileHandle) return false;
-  try{
-    let perm = await fileHandle.queryPermission({mode:'readwrite'});
-    if(perm !== 'granted'){
-      perm = await fileHandle.requestPermission({mode:'readwrite'});
-      if(perm !== 'granted'){ fileState = 'needs-perm'; updateFileBtn(); return false; }
-    }
-    const w = await fileHandle.createWritable();
-    await w.write(JSON.stringify(S, null, 2));
-    await w.close();
-    fileState = 'linked';
-    updateFileBtn();
-    return true;
-  }catch(e){
-    console.warn('write failed', e);
-    fileState = 'error';
-    updateFileBtn();
-    return false;
-  }
+/* =========================================================
+   RENDER SCREEN
+   ========================================================= */
+function renderScreen(s){
+  if(s==='home')renderHome();
+  if(s==='tasks')renderTasks();
+  if(s==='logs')renderLogs();
+  if(s==='settings')hydrateSettings();
+  if(s==='ref'){/* static */}
 }
 
-/* --- Read the file content --- */
-async function readFromFile(handle){
-  try{
-    const file = await handle.getFile();
-    const text = await file.text();
-    if(!text.trim()) return null;
-    return JSON.parse(text);
-  }catch(e){
-    console.warn('read failed', e);
-    return null;
-  }
-}
+/* ---- HOME ---- */
+function renderHome(){
+  document.getElementById('vcName').textContent=S.meta.car||'— سيارة —';
+  document.getElementById('vcPlate').textContent=(S.meta.plate||'—')+' · '+(S.meta.year||'—');
+  document.getElementById('vcKm').textContent=fmtNum(parseKm(S.currentKm)||0);
 
-/* --- Link a new file --- */
-async function linkFile(){
-  if(!FS_SUPPORTED){
-    toast('متصفحك لا يدعم الحفظ في ملف. استخدم Chrome أو Edge.', 'warn');
+  const km=parseKm(S.currentKm);
+  const {byKm,byTime}=computeUpcoming();
+  const all=[...byKm.map(x=>({...x,type:'km'})),...byTime.map(x=>({...x,type:'time'}))].sort((a,b)=>{
+    const ra=a.type==='km'?a.remaining:null,rb=b.type==='km'?b.remaining:null;
+    const da=a.type==='time'?a.daysLeft:null,db=b.type==='time'?b.daysLeft:null;
+    const sa=a.type==='km'?a.remaining/100:a.daysLeft*5;
+    const sb=b.type==='km'?b.remaining/100:b.daysLeft*5;
+    return sa-sb;
+  });
+  document.getElementById('statNext').textContent=all.length?Math.min(all.length,99):'0';
+  const urgent=all.filter(x=>(x.type==='km'&&x.remaining<1000)||(x.type==='time'&&x.daysLeft<=14)).length;
+  document.getElementById('statAlerts').textContent=urgent;
+  document.getElementById('statAlerts').className='stat-val'+(urgent>0?' danger':'');
+  const nextTime=byTime[0];
+  document.getElementById('statDays').textContent=nextTime?Math.max(0,nextTime.daysLeft):'—';
+
+  document.getElementById('upcomingCount').textContent=all.length;
+  const el=document.getElementById('homeTasks');
+  if(!all.length){
+    el.innerHTML=`<div class="empty"><span class="empty-icon">✨</span>كل شيء تحت السيطرة<br><span style="font-size:11px">أضف قراءة العداد في الإعدادات</span></div>`;
     return;
   }
-  if(fileState === 'linked'){
-    if(confirm('هل تريد إلغاء ربط الملف الحالي؟ (لن تُحذف البيانات من الملف)')){
-      try{ await idbDel(IDB_KEY); }catch(e){}
-      fileHandle = null;
-      fileState = 'unlinked';
-      updateFileBtn();
-      toast('تم إلغاء ربط الملف. الحفظ الآن في المتصفح فقط.', 'warn');
+  el.innerHTML=all.slice(0,6).map(t=>{
+    const icon=t.type==='km'?'🛣️':'📅';
+    let cls='p-ok',meta='';
+    if(t.type==='km'){
+      if(t.remaining<0){cls='p-overdue';meta=`متأخرة بـ ${fmtNum(-t.remaining)} كم`;}
+      else if(t.remaining<1000){cls='p-urgent';meta=`بعد ${fmtNum(t.remaining)} كم`;}
+      else if(t.remaining<3000){cls='p-soon';meta=`بعد ${fmtNum(t.remaining)} كم`;}
+      else{cls='p-ok';meta=`بعد ${fmtNum(t.remaining)} كم`;}
+    }else{
+      if(t.daysLeft<0){cls='p-overdue';meta=`متأخرة ${fmtNum(-t.daysLeft)} يوم`;}
+      else if(t.daysLeft<=14){cls='p-urgent';meta=`بعد ${t.daysLeft} يوم`;}
+      else if(t.daysLeft<=30){cls='p-soon';meta=`بعد ${t.daysLeft} يوم`;}
+      else{cls='p-ok';meta=`بعد ${Math.round(t.daysLeft/30)} شهر`;}
     }
-    return;
-  }
-  if(fileState === 'needs-perm'){
-    // re-request permission
-    try{
-      const perm = await fileHandle.requestPermission({mode:'readwrite'});
-      if(perm === 'granted'){
-        // read file to load existing data
-        const data = await readFromFile(fileHandle);
-        if(data) S = deepMerge(structuredClone(DEFAULT), data);
-        fileState = 'linked';
-        updateFileBtn();
-        await writeToFile();
-        renderAll();
-        toast('تم استعادة الوصول إلى الملف وتحميل البيانات ✓', 'ok');
-      } else {
-        toast('لم يتم منح الإذن.', 'err');
-      }
-    }catch(e){ toast('تعذّر طلب الإذن.', 'err'); }
-    return;
-  }
-  // Unlinked: ask for a new file
-  try{
-    const handle = await window.showSaveFilePicker({
-      suggestedName: (S.meta.car ? S.meta.car.replace(/\s+/g,'-') + '-' : '') + 'car-logbook.json',
-      types: [{ description: 'Car Logbook JSON', accept: { 'application/json': ['.json'] } }]
-    });
-    fileHandle = handle;
-    try{ await idbSet(IDB_KEY, handle); }catch(e){ console.warn('idb set failed', e); }
-    fileState = 'linked';
-    updateFileBtn();
-    await writeToFile();
-    toast('✓ تم ربط الملف — كل تغيير سيُحفظ تلقائياً', 'ok');
-  }catch(e){
-    if(e.name !== 'AbortError') { console.warn(e); toast('تعذّر إنشاء الملف.', 'err'); }
-  }
-}
-
-/* --- Restore handle on boot --- */
-async function restoreFileHandle(){
-  if(!FS_SUPPORTED){ fileState = 'unsupported'; updateFileBtn(); return; }
-  try{
-    const h = await idbGet(IDB_KEY);
-    if(!h){ updateFileBtn(); return; }
-    fileHandle = h;
-    const perm = await h.queryPermission({mode:'readwrite'});
-    if(perm === 'granted'){
-      const data = await readFromFile(h);
-      if(data){
-        S = deepMerge(structuredClone(DEFAULT), data);
-        fileState = 'linked';
-        updateFileBtn();
-        saveToLocal();
-        renderAll();
-        toast('✓ تم تحميل البيانات من الملف المحفوظ', 'ok');
-        return;
-      }
-      fileState = 'linked';
-    } else {
-      fileState = 'needs-perm';
-    }
-    updateFileBtn();
-  }catch(e){
-    console.warn('restore failed', e);
-    fileState = 'unlinked';
-    updateFileBtn();
-  }
-}
-
-/* --- UI updates for the file button --- */
-function updateFileBtn(){
-  const btn = document.getElementById('fileLinkBtn');
-  const lbl = document.getElementById('fileLinkLbl');
-  const ico = document.getElementById('fileLinkIcon');
-  if(!btn) return;
-  btn.classList.remove('linked', 'needs-perm', 'unsupported');
-  switch(fileState){
-    case 'linked':
-      btn.classList.add('linked');
-      if(lbl) lbl.textContent = 'مرتبط ✓';
-      if(ico) ico.textContent = '📁';
-      btn.title = 'البيانات تُحفظ في الملف — اضغط لإلغاء الربط';
-      break;
-    case 'needs-perm':
-      btn.classList.add('needs-perm');
-      if(lbl) lbl.textContent = 'اضغط لمنح الإذن';
-      if(ico) ico.textContent = '🔓';
-      btn.title = 'المتصفح يحتاج إذن للوصول إلى الملف — اضغط';
-      break;
-    case 'unsupported':
-      btn.classList.add('unsupported');
-      if(lbl) lbl.textContent = 'غير مدعوم';
-      if(ico) ico.textContent = '⚠️';
-      btn.title = 'متصفحك لا يدعم الحفظ المباشر — استخدم التصدير اليدوي';
-      break;
-    default:
-      if(lbl) lbl.textContent = 'ربط ملف';
-      if(ico) ico.textContent = '📁';
-      btn.title = 'اختر ملفاً لحفظ البيانات تلقائياً فيه';
-  }
-}
-
-/* =========================================================
-   TOAST
-   ========================================================= */
-let toastTimer = null;
-function toast(msg, type='ok'){
-  const el = document.getElementById('toast');
-  const msgEl = document.getElementById('toastMsg');
-  const icoEl = document.getElementById('toastIco');
-  if(!el || !msgEl) return;
-  el.classList.remove('ok','warn','err');
-  el.classList.add(type);
-  icoEl.textContent = type === 'ok' ? '✓' : type === 'warn' ? '⚠' : '✕';
-  msgEl.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
-}
-
-/* =========================================================
-   SAVE (dual: localStorage + file)
-   ========================================================= */
-function save(){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    saveToLocal();
-    let fileOk = false;
-    if(fileHandle && fileState !== 'unsupported'){
-      fileOk = await writeToFile();
-    }
-    flash(fileOk);
-  }, 300);
-}
-function flash(fileOk){
-  const f = document.getElementById('saveFlash');
-  if(!f) return;
-  if(fileState === 'linked' && fileOk) f.textContent = '💾 محفوظ في الملف';
-  else if(fileHandle && !fileOk) f.textContent = '⚠ حفظ في المتصفح فقط';
-  else f.textContent = '✓ محفوظ في المتصفح';
-  f.classList.add('show');
-  clearTimeout(f._t);
-  f._t = setTimeout(() => f.classList.remove('show'), 1400);
-}
-
-/* =========================================================
-   MODE
-   ========================================================= */
-let currentMode = localStorage.getItem(MODE_KEY) || 'viewing';
-function applyMode(){
-  const isEdit = currentMode === 'editing';
-  document.body.classList.toggle('editing', isEdit);
-  document.body.classList.toggle('viewing', !isEdit);
-  document.querySelectorAll('input.inp, input.sb-km').forEach(el => {
-    if(el.type === 'checkbox') return;
-    const always = el.hasAttribute('data-always-edit');
-    el.readOnly = !(isEdit || always);
-    el.setAttribute('tabindex', (isEdit || always) ? '0' : '-1');
-  });
-  document.querySelectorAll('select.gridtype-sel, select.inp').forEach(el => { el.disabled = !isEdit; });
-  document.querySelectorAll('.mode-btn').forEach(b => { b.classList.toggle('active', b.dataset.mode === currentMode); });
-}
-function setMode(m){
-  if(m !== 'editing' && m !== 'viewing') return;
-  currentMode = m;
-  try{ localStorage.setItem(MODE_KEY, m); }catch(e){}
-  applyMode();
-}
-
-/* =========================================================
-   RENDERERS
-   ========================================================= */
-function renderDistance(){
-  document.getElementById('distBody').innerHTML = S.distance.map((row, i) => {
-    const tasksHtml = row.tasks.map((t, j) => `
-      <div class="tsk">
-        <span class="bullet"></span>
-        ${inp(`distance.${i}.tasks.${j}`, t)}
-        ${delBtn('distanceTask', i, j)}
-      </div>`).join('');
-    const kmsHtml = row.kms.map((k, j) => `
-      <div class="km-item">
-        ${inp(`distance.${i}.kms.${j}.v`, k.v, 'km-num-inp')}
-        ${cb(`distance.${i}.kms.${j}.done`, k.done, 'km-box')}
-        ${delBtn('distanceKm', i, j)}
-      </div>`).join('') + `
-      <div class="km-item"><button class="addkm" data-action="addKm" data-i="${i}" title="إضافة نقطة كيلومتر">+</button></div>`;
-    return `<tr>
-      <td class="freq-cell">
-        ${inp(`distance.${i}.interval`, row.interval, 'freq-badge-inp')}
-        ${inp(`distance.${i}.count`, row.count, 'freq-count-inp')}
-        <div style="margin-top:4px">${delBtn('distance', i)}</div>
-      </td>
-      <td class="tasks-cell">
-        ${tasksHtml}
-        <button class="add-btn" data-action="addTask" data-i="${i}" style="margin-top:4px">+ مهمة</button>
-      </td>
-      <td class="checks-cell"><div class="km-strip">${kmsHtml}</div></td>
-    </tr>`;
+    const name=cleanTask(t.tasks[0]||'مهمة');
+    const extra=t.tasks.length>1?` +${t.tasks.length-1}`:'';
+    const metaCls=cls==='p-overdue'||cls==='p-urgent'?'danger':cls==='p-soon'?'warning':'success';
+    return `<div class="task-item ${cls}">
+      <div class="task-icon">${icon}</div>
+      <div class="task-body">
+        <div class="task-name">${esc(name)}${extra}</div>
+        <div class="task-meta ${metaCls}">${meta}</div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-function gridHTML(row, i){
-  const g = row.grid || [];
-  const type = row.gridType || 'months';
-  if(type === 'weeks'){
-    let h = '<div class="weeks-grid">';
-    for(let q=0;q<4;q++){
-      h += `<div class="weeks-row"><span class="q-label">Q${q+1}</span>`;
-      for(let w=0;w<13;w++){ const idx = q*13 + w; h += cb(`time.${i}.grid.${idx}`, g[idx], 'wbox'); }
-      h += '</div>';
-    }
-    return h + '</div>';
-  }
-  if(type === 'months'){
-    const m = ['ينا','فبر','مار','أبر','ماي','يون','يول','أغس','سبت','أكت','نوف','ديس'];
-    return `<div class="months-grid">${m.map((x,idx) => `<div class="month-item"><span class="m-lbl">${x}</span>${cb(`time.${i}.grid.${idx}`, g[idx], 'm-box')}</div>`).join('')}</div>`;
-  }
-  if(type === 'quarters'){
-    return `<div class="quarters-grid">${['Q1','Q2','Q3','Q4'].map((q,idx) => `<div class="quarter-item"><span class="q-lbl">${q}</span>${cb(`time.${i}.grid.${idx}`, g[idx], 'q-box')}</div>`).join('')}</div>`;
-  }
-  if(type === 'halves'){
-    return `<div class="halves-grid">
-      <div class="half-item"><span class="h-lbl">النصف الأول</span>${cb(`time.${i}.grid.0`, g[0], 'h-box')}</div>
-      <div class="half-item"><span class="h-lbl">النصف الثاني</span>${cb(`time.${i}.grid.1`, g[1], 'h-box')}</div>
-    </div>`;
-  }
-  return `<div class="annual-grid">${cb(`time.${i}.grid.0`, g[0], 'annual-box')}</div>`;
-}
-
-function renderTime(){
-  let html = '', alt = false;
-  S.time.forEach((row, i) => {
-    row.tasks.forEach((task, k) => {
-      html += `<tr class="${alt ? 'alt' : ''}">`;
-      if(k === 0){
-        const opts = Object.keys(GRID_SIZES).map(t => `<option value="${t}" ${row.gridType===t?'selected':''}>${GRID_LABELS[t]}</option>`).join('');
-        html += `<td class="freq-cell" rowspan="${row.tasks.length}">
-          ${inp(`time.${i}.freq`, row.freq, 'freq-badge-inp')}
-          ${inp(`time.${i}.count`, row.count, 'freq-count-inp')}
-          <select class="gridtype-sel" data-gridtype="${i}">${opts}</select>
-          <div style="margin-top:4px">${delBtn('time', i)}</div>
-        </td>`;
-      }
-      html += `<td class="task-cell">
-        <div class="tline">
-          ${inp(`time.${i}.tasks.${k}.icon`, task.icon, 'ico-inp')}
-          ${inp(`time.${i}.tasks.${k}.name`, task.name, 'name-inp')}
-          ${delBtn('timeTask', i, k)}
+/* ---- TASKS ---- */
+document.querySelectorAll('#taskSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    currentTaskView=b.dataset.view;
+    document.querySelectorAll('#taskSeg button').forEach(x=>x.classList.toggle('active',x===b));
+    renderTasks();
+  });
+});
+function renderTasks(){
+  const c=document.getElementById('tasksContent');
+  if(currentTaskView==='km'){
+    c.innerHTML=S.distance.map((row,i)=>{
+      const done=row.kms.filter(k=>k.done).length;
+      const pct=row.kms.length?Math.round(done/row.kms.length*100):0;
+      return `<div class="card">
+        <div class="card-title">
+          <span>${esc(row.interval)} — ${esc(row.count)}</span>
+          <span class="count">${done}/${row.kms.length}</span>
         </div>
-      </td>`;
-      html += `<td class="grid-cell">${gridHTML(row, i)}</td></tr>`;
+        <div style="background:var(--surface-2);height:6px;border-radius:6px;margin-bottom:12px;overflow:hidden">
+          <div style="height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-dark));width:${pct}%;border-radius:6px;transition:width .3s"></div>
+        </div>
+        ${row.tasks.map(t=>`<div class="check-row" style="border:none;padding:6px 0"><span style="font-size:13px;font-weight:700">${esc(t)}</span></div>`).join('')}
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-weight:800;margin-bottom:6px">علامات التنفيذ (×1000 كم):</div>
+        <div class="km-strip">
+          ${row.kms.map((k,j)=>`<div class="km-item">
+            <div class="km-num">${esc(k.v)}</div>
+            <input type="checkbox" class="km-box" data-km="${i}-${j}" ${k.done?'checked':''}>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+    c.querySelectorAll('[data-km]').forEach(el=>{
+      el.addEventListener('change',e=>{
+        const [i,j]=e.target.dataset.km.split('-').map(Number);
+        S.distance[i].kms[j].done=e.target.checked;
+        saveState();renderScreen('tasks');
+      });
     });
-    html += `<tr class="${alt ? 'alt' : ''}">
-      <td class="task-cell" colspan="2" style="text-align:center;padding:4px">
-        <button class="add-btn" data-action="addTimeTask" data-i="${i}">+ مهمة لهذه الدورية</button>
-      </td>
-      <td class="grid-cell"></td>
-    </tr>`;
-    alt = !alt;
+  }else{
+    c.innerHTML=S.time.map((row,i)=>{
+      const done=row.grid.filter(Boolean).length;
+      return `<div class="card">
+        <div class="card-title"><span>${esc(row.freq)} — ${esc(row.count)}</span><span class="count">${done}/${row.grid.length}</span></div>
+        ${row.tasks.map(t=>`<div class="check-row" style="border:none;padding:5px 0"><span style="font-size:13px;font-weight:700">${t.icon||''} ${esc(t.name||'')}</span></div>`).join('')}
+        <div style="margin-top:10px">${renderGrid(row,i)}</div>
+      </div>`;
+    }).join('');
+    c.querySelectorAll('[data-tg]').forEach(el=>{
+      el.addEventListener('change',e=>{
+        const [i,j]=e.target.dataset.tg.split('-').map(Number);
+        S.time[i].grid[j]=e.target.checked;
+        saveState();
+      });
+    });
+  }
+}
+function renderGrid(row,i){
+  const g=row.grid,t=row.gridType;
+  if(t==='weeks'){
+    let h='<div class="grid-weeks">';
+    for(let q=0;q<4;q++){
+      h+=`<div class="grid-week-row"><span class="q-lbl">Q${q+1}</span>`;
+      for(let w=0;w<13;w++){const k=q*13+w;h+=`<input type="checkbox" class="wbox" data-tg="${i}-${k}" ${g[k]?'checked':''}>`;}
+      h+='</div>';
+    }
+    return h+'</div>';
+  }
+  if(t==='months'){
+    const m=['ينا','فبر','مار','أبر','ماي','يون','يول','أغس','سبت','أكت','نوف','ديس'];
+    return `<div class="grid-months">${m.map((x,k)=>`<div class="month-item"><span class="m-lbl">${x}</span><input type="checkbox" class="mbox" data-tg="${i}-${k}" ${g[k]?'checked':''}></div>`).join('')}</div>`;
+  }
+  if(t==='quarters')return `<div class="grid-months">${['Q1','Q2','Q3','Q4'].map((x,k)=>`<div class="month-item"><span class="m-lbl">${x}</span><input type="checkbox" class="mbox" data-tg="${i}-${k}" ${g[k]?'checked':''}></div>`).join('')}</div>`;
+  if(t==='halves')return `<div class="grid-months">${['H1','H2'].map((x,k)=>`<div class="month-item"><span class="m-lbl">${x}</span><input type="checkbox" class="mbox" data-tg="${i}-${k}" ${g[k]?'checked':''}></div>`).join('')}</div>`;
+  return `<div class="grid-months">${['سنوي'].map((x,k)=>`<div class="month-item"><span class="m-lbl">${x}</span><input type="checkbox" class="mbox" data-tg="${i}-0" ${g[0]?'checked':''}></div>`).join('')}</div>`;
+}
+
+/* ---- LOGS ---- */
+document.querySelectorAll('#logSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    currentLogView=b.dataset.view;
+    document.querySelectorAll('#logSeg button').forEach(x=>x.classList.toggle('active',x===b));
+    renderLogs();
   });
-  document.getElementById('timeBody').innerHTML = html;
+});
+function renderLogs(){
+  const c=document.getElementById('logsContent');
+  if(currentLogView==='fuel'){
+    const entries=S.fuel.filter(f=>f.date||f.amount||f.odo);
+    const total=entries.reduce((s,f)=>s+(parseFloat(f.amount)||0),0);
+    c.innerHTML=`<div class="stat-grid" style="grid-template-columns:1fr 1fr">
+      <div class="stat"><div class="stat-val">${entries.length}</div><div class="stat-lbl">تعبئة</div></div>
+      <div class="stat"><div class="stat-val">${fmtNum(total)}</div><div class="stat-lbl">الإجمالي</div></div>
+    </div>${renderLogList('fuel',['التاريخ:date','العداد:odo','اللترات:liters','المبلغ:amount'])}`;
+  }else if(currentLogView==='repairs'){
+    c.innerHTML=`<div class="stat-grid" style="grid-template-columns:1fr 1fr">
+      <div class="stat"><div class="stat-val">${S.repairs.filter(r=>r.desc).length}</div><div class="stat-lbl">إصلاح</div></div>
+      <div class="stat"><div class="stat-val">${fmtNum(S.repairs.reduce((s,r)=>s+(parseFloat(r.cost)||0),0))}</div><div class="stat-lbl">التكلفة</div></div>
+    </div>${renderLogList('repairs',['التاريخ:date','العداد:odo','الوصف:desc','التكلفة:cost'])}`;
+  }else{
+    c.innerHTML=renderLogList('rotations',['التاريخ:date','العداد:odo','النمط:pattern','الورشة:shop']);
+  }
+  c.querySelectorAll('[data-log]').forEach(el=>{
+    el.addEventListener('click',()=>openLogEntry(el.dataset.log,Number(el.dataset.idx)));
+  });
 }
-
-function renderQuick(){
-  document.getElementById('quickGrid').innerHTML = S.quick.map((card, i) => `
-    <div class="quick-card">
-      <h4>
-        ${inp(`quick.${i}.title`, card.title, 'h4-inp')}
-        ${inp(`quick.${i}.badge`, card.badge, 'badge-inp')}
-        ${delBtn('quick', i)}
-      </h4>
-      <ul class="checks">
-        ${card.items.map((it, j) => `
-          <li>${cb(`quick.${i}.items.${j}.done`, it.done)}${inp(`quick.${i}.items.${j}.text`, it.text)}${delBtn('quickItem', i, j)}</li>
-        `).join('')}
-      </ul>
-      <div style="margin-top:5px;text-align:center"><button class="add-btn" data-action="addQuickItem" data-i="${i}">+ بند</button></div>
-    </div>`).join('');
-}
-
-function renderWarnings(){
-  document.getElementById('warnBody').innerHTML = S.warnings.map((w, i) => `
-    <tr>
-      <td>${inp(`warnings.${i}.sign`, w.sign)}</td>
-      <td>${inp(`warnings.${i}.cause`, w.cause)}</td>
-      <td>${inp(`warnings.${i}.action`, w.action)}</td>
-      <td class="fill">${delBtn('warnings', i)}</td>
-    </tr>`).join('');
-}
-
-function renderCatalog(){
-  document.getElementById('catalogGrid').innerHTML = S.catalog.map((cat, i) => `
-    <div class="catalog-card">
-      <h4>
-        <span class="num-badge">${esc(cat.num)}</span>
-        ${inp(`catalog.${i}.title`, cat.title)}
-        ${delBtn('catalog', i)}
-      </h4>
-      ${cat.lines.map((ln, j) => `
-        <div class="catalog-line">
-          ${inp(`catalog.${i}.lines.${j}.l`, ln.l, 'cl')}
-          ${inp(`catalog.${i}.lines.${j}.v`, ln.v, 'cd', '—')}
-          ${delBtn('catalogLine', i, j)}
-        </div>`).join('')}
-      <div style="margin-top:5px;text-align:center"><button class="add-btn" data-action="addCatalogLine" data-i="${i}">+ حقل</button></div>
-    </div>`).join('');
-}
-
-function renderWarranty(){
-  document.getElementById('warrantyBody').innerHTML = S.warranty.map((r, i) => `
-    <tr>
-      <td class="fill">${i+1}</td>
-      <td>${inp(`warranty.${i}.part`, r.part)}</td>
-      <td>${inp(`warranty.${i}.date`, r.date)}</td>
-      <td>${inp(`warranty.${i}.odo`, r.odo)}</td>
-      <td>${inp(`warranty.${i}.until`, r.until)}</td>
-      <td>${inp(`warranty.${i}.shop`, r.shop)}</td>
-      <td>${inp(`warranty.${i}.notes`, r.notes)}</td>
-      <td class="fill">${delBtn('warranty', i)}</td>
-    </tr>`).join('');
-}
-
-function renderDocs(){
-  document.getElementById('docsBody').innerHTML = S.docs.map((d, i) => `
-    <tr>
-      <td style="padding:0 6px">${inp(`docs.${i}.name`, d.name)}</td>
-      <td>${inp(`docs.${i}.ref`, d.ref)}</td>
-      <td>${inp(`docs.${i}.issued`, d.issued)}</td>
-      <td>${inp(`docs.${i}.expires`, d.expires)}</td>
-      <td>${inp(`docs.${i}.alert`, d.alert)}</td>
-      <td class="fill">${delBtn('docs', i)}</td>
-    </tr>`).join('');
-}
-
-function renderWorkshops(){
-  document.getElementById('workshopGrid').innerHTML = S.workshops.map((w, i) => `
-    <div class="workshop-card">
-      <div class="wc-head">
-        ${inp(`workshops.${i}.icon`, w.icon, 'wc-ico')}
-        <div class="wc-title">
-          ${inp(`workshops.${i}.title`, w.title)}
-          <small>${esc(w.sub || '')}</small>
-        </div>
-        ${delBtn('workshops', i)}
+function renderLogList(coll,fields){
+  const items=S[coll].map((r,i)=>({r,i})).filter(({r})=>Object.values(r).some(v=>v));
+  if(!items.length)return `<div class="empty"><span class="empty-icon">📭</span>لا توجد سجلات بعد<br><span style="font-size:11px">اضغط زر + لإضافة أول سجل</span></div>`;
+  return `<div class="list">${items.map(({r,i})=>`
+    <div class="list-item" data-log="${coll}" data-idx="${i}">
+      <div class="li-icon">${coll==='fuel'?'⛽':coll==='repairs'?'🔧':'🛞'}</div>
+      <div class="li-body">
+        <div class="li-title">${esc(r[fields[2].split(':')[1]]||r[fields[0].split(':')[1]]||'سجل')}</div>
+        <div class="li-sub">${esc(r.date||'')} ${r.odo?`· ${esc(r.odo)} كم`:''}</div>
       </div>
-      ${w.lines.map((ln, j) => `
-        <div class="wc-line">
-          ${inp(`workshops.${i}.lines.${j}.l`, ln.l, 'wl')}
-          ${inp(`workshops.${i}.lines.${j}.v`, ln.v)}
-          ${delBtn('workshopLine', i, j)}
-        </div>`).join('')}
-    </div>`).join('');
+      <span style="color:var(--text-muted);font-size:18px">‹</span>
+    </div>
+  `).join('')}</div>`;
 }
 
-function renderLog(tbodyId, coll, fields){
-  document.getElementById(tbodyId).innerHTML = S[coll].map((r, i) => `
-    <tr>
-      <td class="fill">${i+1}</td>
-      ${fields.map(f => `<td>${inp(`${coll}.${i}.${f}`, r[f])}</td>`).join('')}
-      <td class="fill">${delBtn(coll, i)}</td>
-    </tr>`).join('');
-}
-
-function renderEmergencyLists(){
-  document.getElementById('emergencyList').innerHTML = S.emergency.map((r, i) => `
-    <div class="info-line">
-      <span class="l">${inp(`emergency.${i}.l`, r.l)}</span>
-      ${inp(`emergency.${i}.v`, r.v)}
-      ${delBtn('emergency', i)}
-    </div>`).join('') + `<div style="text-align:center;margin-top:5px"><button class="add-btn" data-action="addRow" data-coll="emergency">+ رقم</button></div>`;
-  document.getElementById('contactsList').innerHTML = S.contacts.map((r, i) => `
-    <div class="info-line">
-      <span class="l">${inp(`contacts.${i}.l`, r.l)}</span>
-      ${inp(`contacts.${i}.v`, r.v)}
-      ${delBtn('contacts', i)}
-    </div>`).join('') + `<div style="text-align:center;margin-top:5px"><button class="add-btn" data-action="addRow" data-coll="contacts">+ جهة</button></div>`;
-}
-
-function renderTires(){
-  document.getElementById('tireBox').innerHTML = S.tires.map((t, i) => `
-    <div class="t-item" ${i === 4 ? 'style="grid-column:1/-1;background:var(--red-soft);border-color:var(--red);color:var(--red-dark)"' : ''}>
-      <span>${esc(t.l)}</span>
-      ${inp(`tires.${i}.v`, t.v, '', '—')}
-    </div>`).join('');
-}
-
-function renderCutout(){
-  document.getElementById('cutoutInner').innerHTML = S.cutout.map((c, i) => `
-    <div class="cutout-row">
-      <span class="crl">${esc(c.l)}</span>
-      ${inp(`cutout.${i}.v`, c.v)}
-    </div>`).join('');
-}
-
-function renderTop3(){
-  document.getElementById('top3Body').innerHTML = S.top3.map((r, i) => `
-    <tr>
-      <td class="fill">${i+1}</td>
-      <td>${inp(`top3.${i}.item`, r.item)}</td>
-      <td>${inp(`top3.${i}.status`, r.status)}</td>
-      <td>${inp(`top3.${i}.notes`, r.notes)}</td>
-      <td class="fill">${delBtn('top3', i)}</td>
-    </tr>`).join('');
-}
-
-function hydrate(){
-  document.querySelectorAll('[data-path]').forEach(el => {
-    const v = getPath(S, el.dataset.path);
-    if(el.type === 'checkbox') el.checked = !!v;
-    else el.value = (v === undefined || v === null) ? '' : v;
+/* ---- SETTINGS ---- */
+function hydrateSettings(){
+  document.querySelectorAll('[data-p]').forEach(el=>{
+    const v=getP(S,el.dataset.p);
+    el.value=v==null?'':v;
   });
+}
+
+/* =========================================================
+   BOTTOM SHEET
+   ========================================================= */
+const sheet=document.getElementById('sheet'),backdrop=document.getElementById('backdrop');
+function openSheet(title,bodyHTML,footerHTML){
+  document.getElementById('sheetTitle').textContent=title;
+  document.getElementById('sheetBody').innerHTML=bodyHTML;
+  document.getElementById('sheetFooter').innerHTML=footerHTML||'';
+  sheet.classList.add('show');backdrop.classList.add('show');
+}
+function closeSheet(){sheet.classList.remove('show');backdrop.classList.remove('show');}
+backdrop.addEventListener('click',closeSheet);
+document.getElementById('sheetClose').addEventListener('click',closeSheet);
+
+function openLogEntry(coll,idx){
+  const r=S[coll][idx];
+  const labels={fuel:['⛽ تعبئة وقود',['التاريخ','العداد (كم)','اللترات','السعر/لتر','المبلغ','كم/لتر','ملاحظات'],['date','odo','liters','price','amount','kmpl','notes']],
+    repairs:['🔧 إصلاح',['التاريخ','العداد','الوصف','الورشة','التكلفة','ملاحظات'],['date','odo','desc','shop','cost','notes']],
+    rotations:['🛞 تبديل إطارات',['التاريخ','العداد','النمط','الورشة','ملاحظات'],['date','odo','pattern','shop','notes']]};
+  const [title,labels2,keys]=labels[coll];
+  openSheet(title,`<div>${keys.map((k,i)=>`<div class="form-row"><label>${labels2[i]}</label><input data-k="${k}" value="${esc(r[k]||'')}"></div>`).join('')}</div>`,
+    `<button class="btn btn-outline grow" onclick="closeSheet()">إلغاء</button>
+     <button class="btn btn-primary grow" id="saveEntry">حفظ</button>`);
+  document.getElementById('saveEntry').onclick=()=>{
+    document.querySelectorAll('#sheetBody [data-k]').forEach(inp=>{r[inp.dataset.k]=inp.value;});
+    saveState();closeSheet();renderScreen('logs');toast('تم الحفظ ✓','ok');
+  };
+}
+
+/* FAB */
+document.getElementById('fab').addEventListener('click',()=>{
+  const emptyIdx=S[currentLogView].findIndex(r=>!Object.values(r).some(v=>v));
+  const idx=emptyIdx>=0?emptyIdx:S[currentLogView].length;
+  if(emptyIdx<0){
+    const blank={};Object.keys(S[currentLogView][0]||{date:''}).forEach(k=>blank[k]='');
+    S[currentLogView].push(blank);
+  }
+  openLogEntry(currentLogView,idx);
+});
+
+/* =========================================================
+   REFERENCE SHEETS
+   ========================================================= */
+document.querySelectorAll('[data-ref]').forEach(b=>{
+  b.addEventListener('click',()=>openRef(b.dataset.ref));
+});
+function openRef(type){
+  let title='',body='';
+  if(type==='catalog'){
+    title='📋 كتالوج القطع';
+    body=S.catalog.map((c,i)=>`<div class="card" style="margin-bottom:10px">
+      <div class="card-title">${c.num}. ${esc(c.title)}</div>
+      ${c.lines.map((ln,j)=>`<div class="form-row"><label>${esc(ln.l)}</label><input data-c="${i}-${j}" value="${esc(ln.v)}" placeholder="—"></div>`).join('')}
+    </div>`).join('');
+  }else if(type==='workshops'){
+    title='🏢 الورش المعتمدة';
+    body=S.workshops.map((w,i)=>`<div class="card" style="margin-bottom:10px">
+      <div class="card-title">${w.icon} ${esc(w.title)}</div>
+      ${w.lines.map((ln,j)=>`<div class="form-row"><label>${esc(ln.l)}</label><input data-w="${i}-${j}" value="${esc(ln.v)}" placeholder="—"></div>`).join('')}
+    </div>`).join('');
+  }else if(type==='warranty'){
+    title='🛡️ الضمانات';
+    body=S.warranty.map((w,i)=>`<div class="card" style="margin-bottom:10px">
+      <div class="form-row"><label>القطعة</label><input data-wr="${i}-part" value="${esc(w.part)}"></div>
+      <div class="form-row"><label>تاريخ التركيب</label><input data-wr="${i}-date" value="${esc(w.date)}"></div>
+      <div class="form-row"><label>ينتهي في</label><input data-wr="${i}-until" value="${esc(w.until)}"></div>
+      <div class="form-row"><label>الورشة</label><input data-wr="${i}-shop" value="${esc(w.shop)}"></div>
+    </div>`).join('');
+  }else if(type==='emergency'){
+    title='🚨 أرقام الطوارئ';
+    body=S.emergency.map((e,i)=>`<div class="list-item" style="background:var(--surface);border-radius:12px;margin-bottom:8px">
+      <div class="li-body"><div class="li-title">${esc(e.l)}</div></div>
+      <input data-em="${i}" value="${esc(e.v)}" style="font-size:16px;font-weight:900;color:var(--primary);text-align:left;width:100px">
+    </div>`).join('');
+  }else if(type==='warnings'){
+    title='⚠️ علامات التحذير';
+    body=S.warnings.map(w=>`<div class="card" style="margin-bottom:10px">
+      <div style="font-size:14px;font-weight:900;margin-bottom:6px">${esc(w.sign)}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:3px">السبب: ${esc(w.cause)}</div>
+      <div style="font-size:12px;color:var(--primary);font-weight:900">الإجراء: ${esc(w.action)}</div>
+    </div>`).join('');
+  }else if(type==='tires'){
+    title='💨 ضغط الإطارات (PSI)';
+    body=S.tires.map((t,i)=>`<div class="form-row"><label>${esc(t.l)}</label><input data-t="${i}" value="${esc(t.v)}" placeholder="—" inputmode="numeric"></div>`).join('');
+  }
+  openSheet(title,body,`<button class="btn btn-primary grow" id="saveRef">حفظ</button>`);
+  document.getElementById('saveRef').onclick=()=>{
+    document.querySelectorAll('#sheetBody input').forEach(inp=>{
+      if(inp.dataset.c){const [i,j]=inp.dataset.c.split('-').map(Number);S.catalog[i].lines[j].v=inp.value;}
+      else if(inp.dataset.w){const [i,j]=inp.dataset.w.split('-').map(Number);S.workshops[i].lines[j].v=inp.value;}
+      else if(inp.dataset.wr){const [i,k]=inp.dataset.wr.split('-');S.warranty[i][k]=inp.value;}
+      else if(inp.dataset.em!==undefined){S.emergency[Number(inp.dataset.em)].v=inp.value;}
+      else if(inp.dataset.t!==undefined){S.tires[Number(inp.dataset.t)].v=inp.value;}
+    });
+    saveState();closeSheet();toast('تم الحفظ ✓','ok');
+  };
+}
+
+/* =========================================================
+   SETTINGS ACTIONS
+   ========================================================= */
+document.addEventListener('input',e=>{
+  const p=e.target.dataset.p;if(!p)return;
+  setP(S,p,e.target.value);saveState();
+  if(p==='meta.car'||p==='meta.plate'||p==='meta.year'||p==='currentKm')renderScreen(currentScreen==='settings'?'home':currentScreen);
+  if(currentScreen==='settings')renderScreen('home');
+});
+
+document.getElementById('btnSaveFile').addEventListener('click',()=>{
+  if(typeof cordova!=='undefined'&&cordova.file){
+    try{
+      const data=JSON.stringify(S,null,2);
+      const fname='car-logbook-'+todayIso()+'.json';
+      const path=cordova.file.externalRootDirectory+'Documents/';
+      window.resolveLocalFileSystemURL(path,dir=>{
+        dir.getFile(fname,{create:true},fe=>{
+          fe.createWriter(w=>{w.onwriteend=()=>toast('حُفظ في Documents ✓','ok');w.write(new Blob([data],{type:'application/json'}));});
+        },()=>toast('تعذّر الحفظ','err'));
+      },()=>toast('تعذّر الوصول','err'));
+    }catch(e){toast('خطأ: '+e.message,'err');}
+  }else{
+    exportJSON();
+  }
+});
+document.getElementById('btnExport').addEventListener('click',exportJSON);
+document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{S=merge(structuredClone(DEFAULT),JSON.parse(ev.target.result));saveState();renderScreen('home');toast('تم الاستيراد ✓','ok');}catch(err){toast('ملف غير صالح','err');}};
+  r.readAsText(f);e.target.value='';
+});
+document.getElementById('btnReset').addEventListener('click',()=>{
+  if(confirm('استعادة الافتراضي؟ سيتم حذف كل البيانات.')){
+    S=structuredClone(DEFAULT);saveState();renderScreen('home');toast('تمت الاستعادة','ok');
+  }
+});
+document.getElementById('appBarAction').addEventListener('click',()=>go('settings'));
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='car-logbook-'+todayIso()+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+  toast('تم التصدير ✓','ok');
 }
 
 /* =========================================================
    UPCOMING COMPUTATION
    ========================================================= */
-function getEffectiveDate(){ return S.currentDate ? new Date(S.currentDate + 'T00:00:00') : new Date(); }
-function getEffectiveKm(){
-  const v = parseFloat(String(S.currentKm || '').replace(/[^\d.\-]/g, ''));
-  return isNaN(v) ? null : v;
-}
-function getKmPriority(r){
-  if(r < 0) return {cls:'p-overdue', label:'متأخرة'};
-  if(r < 1000) return {cls:'p-urgent', label:'عاجلة'};
-  if(r < 3000) return {cls:'p-soon', label:'قريبة'};
-  if(r < 6000) return {cls:'p-watch', label:'مراقبة'};
-  return {cls:'p-ok', label:'مبرمجة'};
-}
-function getTimePriority(d){
-  if(d < 0) return {cls:'p-overdue', label:'متأخرة'};
-  if(d <= 14) return {cls:'p-urgent', label:'عاجلة'};
-  if(d <= 30) return {cls:'p-soon', label:'قريبة'};
-  if(d <= 90) return {cls:'p-watch', label:'مراقبة'};
-  return {cls:'p-ok', label:'مبرمجة'};
-}
-
 function computeUpcoming(){
-  const byKm = [], byTime = [];
-  const km = getEffectiveKm();
-  const now = getEffectiveDate();
-
-  if(km !== null){
-    S.distance.forEach(row => {
-      let best = null;
-      row.kms.forEach(k => {
-        if(k.done) return;
-        const v = parseFloat(k.v);
-        if(isNaN(v)) return;
-        const abs = v * 1000;
-        if(best === null || abs < best) best = abs;
-      });
-      if(best !== null){
-        byKm.push({
-          interval: row.interval || '',
-          tasks: (row.tasks || []).slice(),
-          nextKm: best,
-          remaining: best - km
-        });
-      }
+  const byKm=[],byTime=[];
+  const km=parseKm(S.currentKm);
+  const now=S.currentDate?new Date(S.currentDate+'T00:00:00'):new Date();
+  if(km!=null){
+    S.distance.forEach(row=>{
+      let best=null;
+      row.kms.forEach(k=>{if(k.done)return;const v=parseFloat(k.v);if(isNaN(v))return;const a=v*1000;if(best===null||a<best)best=a;});
+      if(best!==null)byKm.push({interval:row.interval,tasks:row.tasks.slice(),nextKm:best,remaining:best-km});
     });
-    byKm.sort((a,b) => a.remaining - b.remaining);
+    byKm.sort((a,b)=>a.remaining-b.remaining);
   }
-
-  const start = parseDate(S.meta.start);
+  const start=parseDate(S.meta.start);
   if(start){
-    const msPerDay = 86400000;
-    S.time.forEach(row => {
-      const pd = PERIOD_DAYS[row.gridType] || 30;
-      const g = row.grid || [];
-      let nextIdx = -1;
-      for(let k = 0; k < g.length; k++){ if(!g[k]){ nextIdx = k; break; } }
-      if(nextIdx < 0) return;
-      const dueDate = new Date(start.getTime() + (nextIdx + 1) * pd * msPerDay);
-      const daysLeft = Math.round((dueDate - now) / msPerDay);
-      byTime.push({
-        freq: row.freq || '',
-        tasks: (row.tasks || []).map(t => (t.icon ? t.icon + ' ' : '') + (t.name || '')),
-        dueDate, daysLeft
-      });
+    S.time.forEach(row=>{
+      const pd=PERIOD_DAYS[row.gridType]||30,g=row.grid||[];
+      let ni=-1;for(let k=0;k<g.length;k++)if(!g[k]){ni=k;break;}
+      if(ni<0)return;
+      const due=new Date(start.getTime()+(ni+1)*pd*86400000);
+      const dl=Math.round((due-now)/86400000);
+      byTime.push({freq:row.freq,tasks:row.tasks.map(t=>(t.icon?t.icon+' ':'')+(t.name||'')),dueDate:due,daysLeft:dl});
     });
-    byTime.sort((a,b) => a.daysLeft - b.daysLeft);
+    byTime.sort((a,b)=>a.daysLeft-b.daysLeft);
   }
-
-  return { byKm, byTime, hasStart: !!start, hasKm: km !== null };
-}
-
-function renderUpcoming(){
-  const { byKm, byTime, hasStart, hasKm } = computeUpcoming();
-  const kmBody = document.getElementById('upcomingKmBody');
-  if(kmBody){
-    if(!hasKm){
-      kmBody.innerHTML = `<tr><td colspan="5" class="up-empty">أدخل <b>العداد الحالي</b> في الأعلى لعرض المهام القادمة حسب المسافة.</td></tr>`;
-    } else if(byKm.length === 0){
-      kmBody.innerHTML = `<tr><td colspan="5" class="up-empty"><strong>✓ كل المهام المبرمجة مكتملة</strong></td></tr>`;
-    } else {
-      kmBody.innerHTML = byKm.map(it => {
-        const p = getKmPriority(it.remaining);
-        const remainText = it.remaining < 0 ? `متأخرة بـ ${fmtNum(-it.remaining)} كم` : `بعد ${fmtNum(it.remaining)} كم`;
-        return `<tr>
-          <td class="up-priority"><span class="up-dot ${p.cls}" title="${p.label}"></span></td>
-          <td class="up-tasks">${it.tasks.map(t => `<div>${esc(t)}</div>`).join('')}</td>
-          <td class="up-km">${fmtNum(it.nextKm)}</td>
-          <td class="up-remain ${p.cls}">${remainText}</td>
-          <td class="up-interval">${esc(it.interval)}</td>
-        </tr>`;
-      }).join('');
-    }
-  }
-  const timeBody = document.getElementById('upcomingTimeBody');
-  if(timeBody){
-    if(!hasStart){
-      timeBody.innerHTML = `<tr><td colspan="5" class="up-empty">أدخل <b>تاريخ بدء الكُتيّب</b> (مثال: 15/01/2025) لعرض المهام القادمة حسب الوقت.</td></tr>`;
-    } else if(byTime.length === 0){
-      timeBody.innerHTML = `<tr><td colspan="5" class="up-empty"><strong>✓ كل المهام الزمنية مكتملة</strong></td></tr>`;
-    } else {
-      timeBody.innerHTML = byTime.map(it => {
-        const p = getTimePriority(it.daysLeft);
-        let remainText;
-        if(it.daysLeft < 0) remainText = `متأخرة ${fmtNum(-it.daysLeft)} يوم`;
-        else if(it.daysLeft === 0) remainText = `اليوم`;
-        else if(it.daysLeft === 1) remainText = `بعد يوم`;
-        else if(it.daysLeft === 2) remainText = `بعد يومين`;
-        else if(it.daysLeft < 30) remainText = `بعد ${fmtNum(it.daysLeft)} يوم`;
-        else if(it.daysLeft < 60) remainText = `بعد شهر`;
-        else remainText = `بعد ${Math.round(it.daysLeft/30)} أشهر`;
-        return `<tr>
-          <td class="up-priority"><span class="up-dot ${p.cls}" title="${p.label}"></span></td>
-          <td class="up-tasks">${it.tasks.map(t => `<div>${esc(t)}</div>`).join('')}</td>
-          <td class="up-date">${fmtDate(it.dueDate)}</td>
-          <td class="up-remain ${p.cls}">${remainText}</td>
-          <td class="up-interval">${esc(it.freq)}</td>
-        </tr>`;
-      }).join('');
-    }
-  }
-}
-
-function renderMiniDashboard(){
-  const { byKm, byTime, hasStart, hasKm } = computeUpcoming();
-  const kmEl = document.getElementById('nextKmTask');
-  const kmWrap = kmEl ? kmEl.parentElement : null;
-  if(kmEl && kmWrap){
-    kmWrap.classList.remove('sb-overdue','sb-urgent','sb-soon','sb-ok','sb-empty');
-    if(!hasKm){ kmEl.textContent = 'أدخل العداد الحالي'; kmWrap.classList.add('sb-empty'); }
-    else if(byKm.length === 0){ kmEl.textContent = '✓ كل شيء مكتمل'; kmWrap.classList.add('sb-ok'); }
-    else {
-      const t = byKm[0];
-      const name = shortTask(t.tasks[0] || 'مهمة');
-      const extra = t.tasks.length > 1 ? ` (+${t.tasks.length - 1})` : '';
-      if(t.remaining < 0){ kmEl.textContent = `${name}${extra} — متأخرة بـ ${fmtNum(-t.remaining)} كم`; kmWrap.classList.add('sb-overdue'); }
-      else { kmEl.textContent = `${name}${extra} — بعد ${fmtNum(t.remaining)} كم`; kmWrap.classList.add(t.remaining < 1000 ? 'sb-urgent' : t.remaining < 3000 ? 'sb-soon' : 'sb-ok'); }
-    }
-  }
-  const tEl = document.getElementById('nextTimeTask');
-  const tWrap = tEl ? tEl.parentElement : null;
-  if(tEl && tWrap){
-    tWrap.classList.remove('sb-overdue','sb-urgent','sb-soon','sb-ok','sb-empty');
-    if(!hasStart){ tEl.textContent = 'أدخل تاريخ البدء'; tWrap.classList.add('sb-empty'); }
-    else if(byTime.length === 0){ tEl.textContent = '✓ كل شيء مكتمل'; tWrap.classList.add('sb-ok'); }
-    else {
-      const t = byTime[0];
-      const name = shortTask(t.tasks[0] || 'مهمة');
-      const extra = t.tasks.length > 1 ? ` (+${t.tasks.length - 1})` : '';
-      let rem;
-      if(t.daysLeft < 0) rem = `متأخرة ${fmtNum(-t.daysLeft)} يوم`;
-      else if(t.daysLeft === 0) rem = 'اليوم';
-      else if(t.daysLeft < 30) rem = `بعد ${fmtNum(t.daysLeft)} يوم`;
-      else rem = `بعد ${Math.round(t.daysLeft/30)} شهر`;
-      tEl.textContent = `${name}${extra} — ${rem}`;
-      tWrap.classList.add(t.daysLeft < 0 ? 'sb-overdue' : t.daysLeft <= 14 ? 'sb-urgent' : t.daysLeft <= 30 ? 'sb-soon' : 'sb-ok');
-    }
-  }
-}
-
-function renderAll(){
-  renderDistance();
-  renderTime();
-  renderQuick();
-  renderWarnings();
-  renderCatalog();
-  renderWarranty();
-  renderDocs();
-  renderWorkshops();
-  renderLog('rotationBody', 'rotations', ['date','odo','pattern','shop','notes']);
-  renderLog('replacementBody', 'replacements', ['date','odo','brand','shop','cost']);
-  renderLog('fuelBody', 'fuel', ['date','odo','liters','price','amount','kmpl','notes']);
-  renderLog('repairBody', 'repairs', ['date','odo','desc','shop','cost','notes']);
-  renderEmergencyLists();
-  renderTires();
-  renderCutout();
-  renderTop3();
-  hydrate();
-  applyMode();
-  renderUpcoming();
-  renderMiniDashboard();
-}
-
-function syncMirrors(path){
-  const v = getPath(S, path);
-  document.querySelectorAll(`[data-path="${path}"]`).forEach(el => {
-    if(el === document.activeElement) return;
-    if(el.type === 'checkbox') el.checked = !!v;
-    else el.value = (v === undefined || v === null) ? '' : v;
-  });
+  return {byKm,byTime};
 }
 
 /* =========================================================
-   EVENTS
+   HELPERS
    ========================================================= */
-document.addEventListener('input', e => {
-  const t = e.target;
-  const path = t.dataset && t.dataset.path;
-  if(!path) return;
-  const always = t.hasAttribute('data-always-edit');
-  if(currentMode === 'viewing' && t.type !== 'checkbox' && !always) return;
-  if(t.type === 'checkbox') setPath(S, path, t.checked);
-  else setPath(S, path, t.value);
-  save();
-  if(path === 'currentKm' || path === 'currentDate' || path === 'meta.start'){
-    syncMirrors(path);
-    renderUpcoming();
-    renderMiniDashboard();
-  } else if(t.type === 'checkbox'){
-    renderUpcoming();
-    renderMiniDashboard();
-  }
-});
-
-document.addEventListener('change', e => {
-  const sel = e.target.closest && e.target.closest('select[data-gridtype]');
-  if(!sel) return;
-  if(currentMode !== 'editing') return;
-  const i = Number(sel.dataset.gridtype);
-  const row = S.time[i];
-  row.gridType = sel.value;
-  const n = GRID_SIZES[sel.value] || 12;
-  const old = row.grid || [];
-  row.grid = Array.from({length:n}, (_, k) => !!old[k]);
-  save();
-  renderAll();
-});
-
-document.addEventListener('click', e => {
-  const btn = e.target.closest('[data-action]');
-  if(!btn) return;
-  const action = btn.dataset.action;
-  const coll = btn.dataset.coll;
-  const i = btn.dataset.i !== undefined ? Number(btn.dataset.i) : null;
-  const j = btn.dataset.j !== undefined ? Number(btn.dataset.j) : null;
-
-  if(action === 'setMode'){ setMode(btn.dataset.mode); return; }
-  if(action === 'linkFile'){ linkFile(); return; }
-  if(action === 'export'){ exportJSON(); return; }
-  if(action === 'import'){ document.getElementById('fileInput').click(); return; }
-  if(action === 'reset'){ resetAll(); return; }
-  if(action === 'gotoUpcoming'){
-    const page = document.getElementById('upcomingPage');
-    if(page) page.scrollIntoView({behavior:'smooth', block:'start'});
-    return;
-  }
-
-  if(currentMode !== 'editing') return;
-
-  switch(action){
-    case 'addRow': {
-      const blank = {
-        distance:  () => ({interval:'XX K', count:'', tasks:['مهمة جديدة'], kms:[{v:'10', done:false}]}),
-        time:      () => ({freq:'دورية جديدة', count:'', gridType:'months', grid:Array(12).fill(false),
-                           tasks:[{icon:'🔧', name:'مهمة جديدة'}]}),
-        quick:     () => ({title:'بطاقة جديدة', badge:'NEW', items:[{text:'بند جديد', done:false}]}),
-        warnings:  () => ({sign:'', cause:'', action:''}),
-        catalog:   () => ({num:'٧', title:'مجموعة جديدة', lines:[{l:'حقل', v:''}]}),
-        warranty:  () => ({part:'', date:'', odo:'', until:'', shop:'', notes:''}),
-        docs:      () => ({name:'', ref:'', issued:'', expires:'', alert:''}),
-        workshops: () => ({icon:'🔧', title:'جهة جديدة', sub:'NEW', lines:[{l:'الاسم',v:''},{l:'الجوال',v:''},{l:'العنوان',v:''},{l:'التقييم',v:''}]}),
-        rotations: () => ({date:'', odo:'', pattern:'', shop:'', notes:''}),
-        replacements: () => ({date:'', odo:'', brand:'', shop:'', cost:''}),
-        fuel:      () => ({date:'', odo:'', liters:'', price:'', amount:'', kmpl:'', notes:''}),
-        repairs:   () => ({date:'', odo:'', desc:'', shop:'', cost:'', notes:''}),
-        emergency: () => ({l:'', v:''}),
-        contacts:  () => ({l:'', v:''}),
-        top3:      () => ({item:'', status:'', notes:''})
-      }[coll];
-      if(!blank) break;
-      S[coll].push(blank());
-      save();
-      renderAll();
-      break;
-    }
-    case 'addTask':        S.distance[i].tasks.push('مهمة جديدة'); save(); renderAll(); break;
-    case 'addKm':          S.distance[i].kms.push({v:'', done:false}); save(); renderAll(); break;
-    case 'addTimeTask':    S.time[i].tasks.push({icon:'🔧', name:'مهمة جديدة'}); save(); renderAll(); break;
-    case 'addQuickItem':   S.quick[i].items.push({text:'بند جديد', done:false}); save(); renderAll(); break;
-    case 'addCatalogLine': S.catalog[i].lines.push({l:'حقل', v:''}); save(); renderAll(); break;
-
-    case 'delRow': {
-      const map = {
-        distanceTask:  () => S.distance[i].tasks.splice(j,1),
-        distanceKm:    () => S.distance[i].kms.splice(j,1),
-        timeTask:      () => S.time[i].tasks.splice(j,1),
-        quickItem:     () => S.quick[i].items.splice(j,1),
-        catalogLine:   () => S.catalog[i].lines.splice(j,1),
-        workshopLine:  () => S.workshops[i].lines.splice(j,1)
-      };
-      if(map[coll]){ map[coll](); save(); renderAll(); break; }
-      if(S[coll] && Array.isArray(S[coll])){ S[coll].splice(i,1); save(); renderAll(); }
-      break;
-    }
-  }
-});
-
-document.addEventListener('keydown', e => {
-  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e'){
-    e.preventDefault();
-    setMode(currentMode === 'editing' ? 'viewing' : 'editing');
-  }
-  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
-    e.preventDefault();
-    save();
-    toast('تم الحفظ اليدوي', 'ok');
-  }
-});
-
-/* =========================================================
-   EXPORT / IMPORT / RESET
-   ========================================================= */
-function exportJSON(){
-  const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  const name = (S.meta.car || 'car') + '-logbook-' + todayIso() + '.json';
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('تم تنزيل نسخة JSON', 'ok');
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtNum(n){if(n==null||isNaN(n))return'0';return Math.round(n).toLocaleString('en-US');}
+function parseKm(v){const n=parseFloat(String(v||'').replace(/[^\d.\-]/g,''));return isNaN(n)?null:n;}
+function cleanTask(t){return String(t||'').replace(/^[\p{Emoji}\u200d\ufe0f\s]+/u,'').trim()||String(t||'');}
+function todayIso(){const t=new Date();return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;}
+function parseDate(s){
+  if(!s)return null;s=String(s).trim();
+  let m=s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if(m)return new Date(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})$/);
+  if(m){let y=+m[3];if(y<100)y+=2000;return new Date(y,+m[2]-1,+m[1]);}
+  return null;
 }
-
-document.getElementById('fileInput').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try{
-      const parsed = JSON.parse(ev.target.result);
-      S = deepMerge(structuredClone(DEFAULT), parsed);
-      save();
-      renderAll();
-      toast('تم تحميل البيانات من الملف ✓', 'ok');
-    }catch(err){ toast('تعذّر قراءة الملف — تأكد أنه JSON صالح.', 'err'); }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-});
-
-function resetAll(){
-  if(!confirm('سيتم حذف كل البيانات وإرجاع الكُتيّب للوضع الافتراضي. هل أنت متأكد؟')) return;
-  S = structuredClone(DEFAULT);
-  localStorage.removeItem(LS_KEY);
-  save();
-  renderAll();
-  toast('تمت الاستعادة للوضع الافتراضي', 'warn');
+let toastTimer;
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
 }
 
 /* =========================================================
    BOOT
    ========================================================= */
-(async function boot(){
-  S = loadStateFromLocal();
-  S.time.forEach(row => {
-    const n = GRID_SIZES[row.gridType] || 12;
-    const old = row.grid || [];
-    row.grid = Array.from({length:n}, (_, k) => !!old[k]);
-  });
-  renderAll();
-  updateFileBtn();
-  // Try to restore the linked file handle (may prompt for permission)
-  await restoreFileHandle();
-})();
+S.time.forEach(row=>{
+  const n=GRID_SIZES[row.gridType]||12;
+  const old=row.grid||[];
+  row.grid=Array.from({length:n},(_,k)=>!!old[k]);
+});
+renderScreen('home');
+// Re-render home after cordova ready
+if(typeof cordova!=='undefined'){
+  document.addEventListener('deviceready',()=>renderScreen('home'),false);
+}
+// Listen for data changes to update home
+setInterval(()=>{if(currentScreen==='home')renderHome();},60000);
 </script>
 
 </body>
-<script>
-/* ===== Cordova File Save ===== */
-(function(){
-  if(typeof window.cordova === 'undefined') return;
-
-  document.addEventListener('deviceready', function(){
-    const btn = document.getElementById('fileLinkBtn');
-    const lbl = document.getElementById('fileLinkLbl');
-    const ico = document.getElementById('fileLinkIcon');
-    if(btn){
-      if(lbl) lbl.textContent = 'حفظ في الجهاز';
-      if(ico) ico.textContent = '💾';
-      btn.classList.add('linked');
-    }
-  }, false);
-
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest && e.target.closest('[data-action="linkFile"]');
-    if(!btn) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    saveToDevice();
-  }, true);
-
-  function saveToDevice(){
-    try{
-      const data = JSON.stringify(S, null, 2);
-      const filename = 'car-logbook-' + todayIso() + '.json';
-      const targetPath = cordova.file.externalRootDirectory + 'Documents/';
-
-      window.resolveLocalFileSystemURL(targetPath, function(dirEntry){
-        dirEntry.getFile(filename, {create:true}, function(fileEntry){
-          fileEntry.createWriter(function(writer){
-            writer.onwriteend = function(){ toast('✓ تم الحفظ في Documents/' + filename, 'ok'); };
-            writer.write(new Blob([data], {type:'application/json'}));
-          });
-        }, function(err){ toast('خطأ: ' + err, 'err'); });
-      }, function(err){
-        toast('تعذّر الوصول لمجلد Documents', 'err');
-      });
-    }catch(err){ toast('تعذّر الحفظ: ' + err.message, 'err'); }
-  }
-})();
-</script>
 </html>
