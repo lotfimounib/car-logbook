@@ -1,7 +1,7 @@
 {
   "name": "car-logbook",
   "displayName": "كتيّب السيارة",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Car Maintenance Logbook",
   "type": "commonjs",
   "devDependencies": {
@@ -14,7 +14,8 @@
       "cordova-plugin-file": {},
       "cordova-plugin-android-permissions": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-camera": {}
+      "cordova-plugin-camera": {},
+      "cordova-plugin-local-notification": {}
     }
   }
 }
