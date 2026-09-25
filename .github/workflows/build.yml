@@ -28,29 +28,24 @@ jobs:
         with:
           packages: 'platform-tools'
 
-      - name: Setup Gradle 8.14.2
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.14.2'
-
-      - name: Install Cordova
-        run: npm install -g cordova
 
       - name: Install dependencies
         run: npm install
 
-      - name: Generate icons and splash
-        run: |
-          npx cordova-res android --skip-config --copy
-
       - name: Add Android platform
-        run: cordova platform add android --nofetch
+        run: npx cordova platform add android
+
+      - name: Generate icons and splash
+        run: npx cordova-res android --skip-config --copy
+        continue-on-error: true
 
       - name: Build APK
-        run: cordova build android --debug
+        run: npx cordova build android --debug
 
       - name: Find APK
-        run: find platforms -name "*.apk" -type f
+        run: find . -name "*.apk" -type f
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
