@@ -28,6 +28,11 @@ jobs:
         with:
           packages: 'platform-tools'
 
+      - name: Setup Gradle 8.14.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.2'
+
       - name: Install Cordova
         run: npm install -g cordova
 
