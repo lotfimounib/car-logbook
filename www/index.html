@@ -469,7 +469,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
       <div class="card">
         <div class="card-title"><span class="ttl">💾 النسخ الاحتياطي</span></div>
         <p style="font-size:12px;color:var(--text-muted);font-weight:600;margin:0 0 12px">
-          كل 6 ساعات يتم حفظ نسخة احتياطية تلقائياً في المجلد الذي تختاره.
+          كل 6 ساعات يتم حفظ نسخة احتياطية تلقائياً.
         </p>
         <button class="btn btn-outline btn-full mb-8" id="btnPickBackup">📂 اختيار مجلد النسخ الاحتياطي</button>
         <button class="btn btn-outline btn-full mb-8" id="btnBackupNow">⬆️ نسخة احتياطية الآن</button>
@@ -529,7 +529,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 
       <div class="card">
         <div class="card-title"><span class="ttl">💾 البيانات</span></div>
-        <button class="btn btn-outline btn-full mb-8" id="btnExport">⬇️ تصدير JSON إلى الملفات</button>
+        <button class="btn btn-primary btn-full mb-8" id="btnExport">📤 تصدير ومشاركة الملف</button>
         <button class="btn btn-outline btn-full mb-8" id="btnImport">⬆️ استيراد JSON</button>
         <button class="btn btn-danger btn-full" id="btnReset">↺ استعادة الافتراضي</button>
         <input type="file" id="importFile" accept="application/json" style="display:none">
@@ -539,7 +539,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
         <div class="card-title"><span class="ttl">ℹ️ حول</span></div>
         <div style="font-size:13px;color:var(--text-muted);line-height:1.8">
           <div style="font-weight:900;color:var(--text);font-size:14px">كتيّب صيانة السيارة</div>
-          الإصدار 3.4 · ضغطة مطولة · صور محسّنة · تصدير للملفات
+          الإصدار 3.5 · تصدير + مشاركة
         </div>
       </div>
     </section>
@@ -735,7 +735,6 @@ function activateAllLongPress(){
   bindAllLongPress('.rl-del', handler);
   bindAllLongPress('.custom-del', handler);
   bindAllLongPress('.del-btn', handler);
-  /* .img-del يعمل بنقر عادي */
 }
 
 /* ============ REGENERATE ============ */
@@ -1832,7 +1831,7 @@ function generateHTML(summaryOnly){
       <div class="header-left">
         <h1>كتيّب السيارة</h1>
         <p>تقرير صيانة · ${fmtDate(now)}</p>
-        <p>الإصدار 3.4</p>
+        <p>الإصدار 3.5</p>
       </div>
       <div class="logo">🚗</div>
     </div>`;
@@ -2053,20 +2052,18 @@ async function doBackup(){
   const fname='car-logbook-backup-'+todayIso()+'.json';
   if(typeof cordova!=='undefined'&&cordova.file){
     try{
-      const dir=S.config.backupFolder==='__cordova_documents__'
-        ? cordova.file.externalRootDirectory+'Documents/'
-        : cordova.file.externalDataDirectory;
+      const dir=cordova.file.externalDataDirectory||cordova.file.dataDirectory;
       window.resolveLocalFileSystemURL(dir,dirEntry=>{
         dirEntry.getFile(fname,{create:true},fe=>{
           fe.createWriter(w=>{
             w.onwriteend=()=>{
               localStorage.setItem(BACKUP_KEY,Date.now());
-              updateBackupInfo();toast('تم النسخ الاحتياطي ✓','ok');
+              updateBackupInfo();
             };
             w.write(new Blob([data],{type:'application/json'}));
           });
-        },()=>toast('تعذّر النسخ','err'));
-      },()=>toast('تعذّر الوصول','err'));
+        });
+      });
       return;
     }catch(e){}
   }
@@ -2077,13 +2074,13 @@ async function doBackup(){
       const perm=await handle.queryPermission({mode:'readwrite'});
       if(perm!=='granted'){
         const req=await handle.requestPermission({mode:'readwrite'});
-        if(req!=='granted'){toast('لا يوجد إذن','warn');return;}
+        if(req!=='granted')return;
       }
       const fh=await handle.getFileHandle(fname,{create:true});
       const w=await fh.createWritable();
       await w.write(data);await w.close();
       localStorage.setItem(BACKUP_KEY,Date.now());
-      updateBackupInfo();toast('تم النسخ الاحتياطي ✓','ok');
+      updateBackupInfo();
       return;
     }catch(e){}
   }
@@ -2093,24 +2090,20 @@ async function doBackup(){
   URL.revokeObjectURL(a.href);
   localStorage.setItem(BACKUP_KEY,Date.now());
   updateBackupInfo();
-  toast('تم تنزيل النسخة','ok');
 }
-document.getElementById('btnBackupNow').onclick=doBackup;
+document.getElementById('btnBackupNow').onclick=()=>{
+  doBackup().then(()=>toast('تم النسخ الاحتياطي ✓','ok')).catch(()=>toast('تعذّر النسخ','err'));
+};
 
 function updateBackupInfo(){
   const bar=document.getElementById('backupBar');
   const info=document.getElementById('backupInfo');
   const txt=document.getElementById('backupBarText');
   const last=Number(localStorage.getItem(BACKUP_KEY)||0);
-  const folder=S.config.backupFolder||'';
-  let label='';
-  if(folder==='__cordova_documents__')label='📂 Documents';
-  else if(folder)label=`📂 ${folder}`;
-  else label='لم يُحدد مجلد';
   if(last){
     const hours=Math.round((Date.now()-last)/3600000);
     const when=hours<1?'منذ قليل':hours<24?`منذ ${hours} ساعة`:`منذ ${Math.round(hours/24)} يوم`;
-    if(info)info.textContent=`آخر نسخة: ${when} · ${label}`;
+    if(info)info.textContent=`آخر نسخة: ${when}`;
     if(txt)txt.textContent=when;
     if(bar){
       bar.style.display='flex';
@@ -2118,7 +2111,7 @@ function updateBackupInfo(){
       bar.classList.toggle('old',hours>=72);
     }
   }else{
-    if(info)info.textContent=`لم يتم عمل نسخة بعد · ${label}`;
+    if(info)info.textContent='لم يتم عمل نسخة بعد';
     if(txt)txt.textContent='لا نسخة';
     if(bar){bar.style.display='flex';bar.classList.add('stale');}
   }
@@ -2128,12 +2121,12 @@ setInterval(()=>{
   if(Date.now()-last>6*3600*1000){doBackup();}
 },3600*1000);
 
-/* ============ EXPORT/IMPORT/RESET ============ */
+/* ============ EXPORT / SHARE ============ */
 async function exportJSON(){
   const json=JSON.stringify(S,null,2);
   const fileName='car-logbook-'+todayIso()+'.json';
 
-  /* 1) على أندرويد: احفظ في مجلد التطبيق (يعمل دائماً) ثم اعرض قائمة المشاركة */
+  /* 1) على أندرويد: احفظ في مجلد التطبيق ثم اعرض قائمة المشاركة */
   if(typeof cordova!=='undefined' && cordova.file){
     const dir = cordova.file.externalDataDirectory || cordova.file.dataDirectory;
     return new Promise((resolve)=>{
@@ -2143,7 +2136,7 @@ async function exportJSON(){
             writer.onwriteend = function(){
               const nativePath = fileEntry.nativeURL || fileEntry.toURL();
               console.log('Saved to:', nativePath);
-              /* حاول المشاركة (Web Share API) */
+              /* حاول المشاركة عبر Web Share API */
               shareSavedFile(json, fileName, nativePath);
               resolve();
             };
@@ -2167,8 +2160,8 @@ async function exportJSON(){
       });
     });
   }
-  /* 2) على المتصفح: تنزيل عادي */
-  downloadFile(json, fileName);
+  /* 2) على المتصفح: نشارك أو ننزّل */
+  shareSavedFile(json, fileName, '');
 }
 
 function shareSavedFile(json, fileName, savedPath){
@@ -2183,32 +2176,32 @@ function shareSavedFile(json, fileName, savedPath){
     })
     .then(()=>toast('تمت المشاركة ✓','ok'))
     .catch((err)=>{
-      if(err.name === 'AbortError') return;
+      if(err.name === 'AbortError')return;
       console.warn('share failed', err);
-      showSavedPath(savedPath);
+      downloadFile(json, fileName);
+    });
+  } else if(navigator.share){
+    navigator.share({
+      title: 'كتيّب السيارة',
+      text: json
+    }).then(()=>toast('تمت المشاركة ✓','ok'))
+    .catch((err)=>{
+      if(err.name === 'AbortError')return;
+      downloadFile(json, fileName);
     });
   } else {
-    /* Web Share غير مدعوم — عرض المسار + سؤال للتنزيل */
-    showSavedPath(savedPath, json, fileName);
+    /* لا يوجد Web Share — نزّل الملف */
+    downloadFile(json, fileName);
+    if(savedPath){
+      const short = savedPath.replace('file://','');
+      setTimeout(()=>{
+        toast('الملف محفوظ ✓','ok');
+      }, 500);
+    }
   }
 }
 
-function showSavedPath(savedPath, json, fileName){
-  const short = savedPath.replace('file://','');
-  if(json){
-    setTimeout(()=>{
-      if(confirm('تم حفظ الملف في:\n\n' + short + '\n\nهل تريد فتحه أو مشاركته؟')){
-        /* محاولة مشاركة بسيطة أو تنزيل */
-        downloadFile(json, fileName);
-      } else {
-        toast('الملف محفوظ ✓','ok');
-      }
-    }, 500);
-  } else {
-    toast('حُفظ في التطبيق','ok');
-  }
-}
-function downloadFile(json,fileName){
+function downloadFile(json, fileName){
   const blob=new Blob([json],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
@@ -2217,8 +2210,9 @@ function downloadFile(json,fileName){
   a.click();
   document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  toast('تم تصدير الملف إلى التنزيلات','ok');
+  toast('تم تصدير الملف ✓','ok');
 }
+
 document.getElementById('btnExport').addEventListener('click',exportJSON);
 document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('importFile').click());
 document.getElementById('importFile').addEventListener('change',e=>{
