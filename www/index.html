@@ -360,16 +360,22 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 .info-box .ico{font-size:16px;flex-shrink:0;line-height:1.4}
 [data-theme="dark"] .info-box{color:#ffd9dd}
 
+/* ============ IMAGES ============ */
 .img-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.img-thumb{width:72px;height:72px;border-radius:10px;object-fit:cover;
-  border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer}
-.img-thumb-wrap{position:relative}
-.img-thumb-wrap .img-del{position:absolute;top:-6px;left:-6px;width:24px;height:24px;
-  border-radius:50%;background:var(--danger);color:#fff;font-size:12px;font-weight:900;
-  display:flex;align-items:center;justify-content:center;border:2px solid var(--surface)}
-.img-add-btn{width:72px;height:72px;border-radius:10px;border:2px dashed var(--primary);
-  background:var(--primary-light);color:var(--primary);font-size:24px;display:flex;
-  align-items:center;justify-content:center;cursor:pointer;transition:transform .15s}
+.img-thumb-wrap{position:relative;width:80px;height:80px}
+.img-thumb{width:80px;height:80px;border-radius:10px;object-fit:cover;
+  border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer;display:block}
+.img-thumb-wrap .img-del{
+  position:absolute;top:-8px;left:-8px;width:28px;height:28px;
+  border-radius:50%;background:var(--danger);color:#fff;font-size:14px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;border:2.5px solid var(--surface);
+  z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer;pointer-events:auto;
+  line-height:1;padding:0;font-family:inherit
+}
+.img-thumb-wrap .img-del:active{transform:scale(.85);background:#b91c1c}
+.img-add-btn{width:80px;height:80px;border-radius:10px;border:2px dashed var(--primary);
+  background:var(--primary-light);color:var(--primary);font-size:28px;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;transition:transform .15s;font-weight:300}
 .img-add-btn:active{transform:scale(.92)}
 
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:300;
@@ -535,7 +541,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
         <div class="card-title"><span class="ttl">ℹ️ حول</span></div>
         <div style="font-size:13px;color:var(--text-muted);line-height:1.8">
           <div style="font-weight:900;color:var(--text);font-size:14px">كتيّب صيانة السيارة</div>
-          الإصدار 3.2 · ضغطة مطولة + مشاركة
+          الإصدار 3.3 · ضغطة مطولة · صور محسّنة · مشاركة
         </div>
       </div>
     </section>
@@ -730,8 +736,8 @@ function activateAllLongPress(){
   bindAllLongPress('.ri-del', handler);
   bindAllLongPress('.rl-del', handler);
   bindAllLongPress('.custom-del', handler);
-  bindAllLongPress('.img-del', handler);
   bindAllLongPress('.del-btn', handler);
+  /* .img-del يعمل بنقر عادي — لا نضيفه هنا */
 }
 
 /* ============ REGENERATE ============ */
@@ -1197,27 +1203,34 @@ function renderImages(images, attachKey){
       ${(images||[]).map((src,j)=>`
         <div class="img-thumb-wrap">
           <img class="img-thumb" src="${src}" data-view="${src}" alt="">
-          <button class="img-del" data-img-del="${attachKey}|${j}">✕</button>
+          <button type="button" class="img-del" data-img-del="${attachKey}|${j}">✕</button>
         </div>
       `).join('')}
-      <button class="img-add-btn" data-img-add="${attachKey}">📷</button>
+      <button type="button" class="img-add-btn" data-img-add="${attachKey}">＋</button>
     </div>`;
 }
 function bindImageStrip(){
   document.querySelectorAll('[data-img-add]').forEach(b=>{
-    b.onclick=()=>attachImage(b.dataset.imgAdd);
+    b.onclick=(e)=>{e.preventDefault();e.stopPropagation();attachImage(b.dataset.imgAdd);};
   });
   document.querySelectorAll('[data-img-del]').forEach(b=>{
-    b.onclick=()=>{
-      const [key,j]=b.dataset.imgDel.split('|');
+    b.onclick=(e)=>{
+      e.preventDefault();e.stopPropagation();
+      const parts=b.dataset.imgDel.split('|');
+      const key=parts[0]+':'+parts[1];
+      const j=Number(parts[2]);
       const arr=getImageArray(key);
-      if(arr){arr.splice(Number(j),1);saveState();openLogEntryByKey(key);}
+      if(arr){
+        arr.splice(j,1);
+        saveState();
+        openLogEntryByKey(key);
+        toast('تم حذف الصورة','ok');
+      }
     };
   });
   document.querySelectorAll('[data-view]').forEach(img=>{
     img.onclick=()=>showLightbox(img.dataset.view);
   });
-  activateAllLongPress();
 }
 function getImageArray(key){
   const parts=key.split(':');
@@ -1236,39 +1249,68 @@ function getImageArray(key){
 function attachImage(key){
   const arr=getImageArray(key);
   if(!arr)return;
-  if(typeof navigator!=='undefined' && navigator.camera){
+  openSheet('📷 إضافة صورة',
+    `<div style="display:flex;gap:12px;justify-content:center;padding:10px 0">
+      <button type="button" class="btn btn-primary" id="imgPickCam" style="flex:1;flex-direction:column;padding:22px 10px;gap:10px">
+        <span style="font-size:36px">📷</span>
+        <span style="font-size:13px">كاميرا</span>
+      </button>
+      <button type="button" class="btn btn-outline" id="imgPickLib" style="flex:1;flex-direction:column;padding:22px 10px;gap:10px">
+        <span style="font-size:36px">🖼️</span>
+        <span style="font-size:13px">من المعرض</span>
+      </button>
+    </div>`,
+    `<button class="btn btn-outline btn-full" onclick="closeSheet()">إلغاء</button>`);
+  document.getElementById('imgPickCam').onclick=()=>{closeSheet();setTimeout(()=>pickImageFrom(key,1),250);};
+  document.getElementById('imgPickLib').onclick=()=>{closeSheet();setTimeout(()=>pickImageFrom(key,0),250);};
+}
+function pickImageFrom(key, mode){
+  const arr=getImageArray(key);
+  if(!arr)return;
+  const onSuccess=(dataUrl)=>{
+    arr.push(dataUrl);
+    saveState();
+    openLogEntryByKey(key);
+    toast('تمت إضافة الصورة ✓','ok');
+  };
+  if(mode===1 && typeof navigator!=='undefined' && navigator.camera){
     navigator.camera.getPicture(
-      (data)=>{
-        arr.push('data:image/jpeg;base64,'+data);
-        saveState();openLogEntryByKey(key);toast('تمت إضافة الصورة ✓','ok');
-      },
-      (err)=>{console.warn(err);},
-      {quality:60,destinationType:1,sourceType:0,targetWidth:900,targetHeight:900,correctOrientation:true,saveToPhotoAlbum:false}
+      (data)=>onSuccess('data:image/jpeg;base64,'+data),
+      (err)=>{console.warn('camera error',err);toast('تم إلغاء الكاميرا','warn');},
+      {quality:75,destinationType:1,sourceType:1,targetWidth:1200,targetHeight:1200,
+       correctOrientation:true,saveToPhotoAlbum:false,allowEdit:false,mediaType:0,encodingType:0}
     );
-  }else{
-    const inp=document.createElement('input');
-    inp.type='file';inp.accept='image/*';
-    inp.onchange=()=>{
-      const f=inp.files[0];if(!f)return;
-      const r=new FileReader();
-      r.onload=()=>{
-        const img=new Image();
-        img.onload=()=>{
-          const canvas=document.createElement('canvas');
-          const max=900;
-          let w=img.width,h=img.height;
-          if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
-          canvas.width=w;canvas.height=h;
-          canvas.getContext('2d').drawImage(img,0,0,w,h);
-          arr.push(canvas.toDataURL('image/jpeg',0.6));
-          saveState();openLogEntryByKey(key);toast('تمت إضافة الصورة ✓','ok');
-        };
-        img.src=r.result;
-      };
-      r.readAsDataURL(f);
-    };
-    inp.click();
+    return;
   }
+  /* منتقي أندرويد الأصلي — يقبل كل الصيغ */
+  const inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='image/*';
+  if(mode===1)inp.capture='environment';
+  inp.style.display='none';
+  document.body.appendChild(inp);
+  inp.onchange=()=>{
+    const f=inp.files[0];
+    try{document.body.removeChild(inp);}catch(e){}
+    if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const max=1200;
+        let w=img.width,h=img.height;
+        if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        onSuccess(canvas.toDataURL('image/jpeg',0.75));
+      };
+      img.onerror=()=>toast('تعذّر قراءة الصورة — جرّب صيغة أخرى','err');
+      img.src=r.result;
+    };
+    r.readAsDataURL(f);
+  };
+  inp.click();
 }
 function openLogEntryByKey(key){
   const parts=key.split(':');
@@ -1771,16 +1813,15 @@ function generateHTML(summaryOnly){
       *{box-sizing:border-box;font-family:'Tajawal',Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
       body{margin:0;color:#0f172a;direction:rtl;font-size:12px;line-height:1.6}
       h1{font-size:26px;margin:0 0 4px;color:#c8102e;letter-spacing:-.5px}
-      h2{font-size:16px;margin:22px 0 10px;color:#0f172a;border-bottom:2px solid #c8102e;padding-bottom:6px;display:flex;align-items:center;gap:8px}
+      h2{font-size:16px;margin:22px 0 10px;color:#0f172a;border-bottom:2px solid #c8102e;padding-bottom:6px}
       h3{font-size:13px;margin:12px 0 6px;color:#c8102e}
       .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0f172a;padding-bottom:12px;margin-bottom:16px}
-      .header-left h1{color:#c8102e}
       .header-left p{margin:2px 0;color:#64748b;font-size:11px;font-weight:700}
       .logo{width:60px;height:60px;background:#c8102e;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0}
       .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;background:#f8f9fc;padding:12px;border-radius:8px;margin-bottom:16px}
       .meta div{display:flex;justify-content:space-between;border-bottom:1px dashed #cbd5e0;padding:4px 0;font-size:11px}
       .meta .k{color:#64748b;font-weight:700}
-      .meta .v{font-weight:900;color:#0f172a}
+      .meta .v{font-weight:900}
       .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
       .stat{background:#f8f9fc;border-right:3px solid #c8102e;padding:10px;border-radius:6px;text-align:center}
       .stat-v{font-size:20px;font-weight:900;color:#c8102e}
@@ -1803,7 +1844,7 @@ function generateHTML(summaryOnly){
       <div class="header-left">
         <h1>كتيّب السيارة</h1>
         <p>تقرير صيانة · ${fmtDate(now)}</p>
-        <p>الإصدار 3.2</p>
+        <p>الإصدار 3.3</p>
       </div>
       <div class="logo">🚗</div>
     </div>`;
@@ -2207,7 +2248,6 @@ regenerateAll();
 renderScreen('home');
 updateBackupInfo();
 
-/* Long press activation loop — keeps buttons bindable after every render */
 setInterval(activateAllLongPress, 500);
 
 if(typeof cordova!=='undefined'){
