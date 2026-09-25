@@ -6,8 +6,7 @@
   "type": "commonjs",
   "devDependencies": {
     "cordova": "^12.0.0",
-    "cordova-android": "^14.0.1",
-    "cordova-res": "^0.15.4"
+    "cordova-android": "^14.0.1"
   },
   "cordova": {
     "platforms": ["android"],
@@ -15,11 +14,7 @@
       "cordova-plugin-file": {},
       "cordova-plugin-android-permissions": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-printer": {},
-      "cordova-plugin-local-notification": {},
-      "cordova-plugin-camera": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+"
-      }
+      "cordova-plugin-camera": {}
     }
   }
 }
