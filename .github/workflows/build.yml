@@ -37,9 +37,6 @@ jobs:
       - name: Add Android platform
         run: npx cordova platform add android
 
-      - name: Generate icons and splash
-        run: npx cordova-res android --skip-config --copy
-        continue-on-error: true
 
       - name: Build APK
         run: npx cordova build android --debug
