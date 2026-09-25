@@ -326,7 +326,6 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
   color:var(--danger);font-size:15px;font-weight:900;flex-shrink:0;
   display:flex;align-items:center;justify-content:center}
 
-/* ============ LONG PRESS ============ */
 .lp-target{position:relative;overflow:hidden;touch-action:none;
   user-select:none;-webkit-user-select:none;
   transition:transform .12s,background .12s,color .12s}
@@ -360,7 +359,6 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 .info-box .ico{font-size:16px;flex-shrink:0;line-height:1.4}
 [data-theme="dark"] .info-box{color:#ffd9dd}
 
-/* ============ IMAGES ============ */
 .img-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .img-thumb-wrap{position:relative;width:80px;height:80px}
 .img-thumb{width:80px;height:80px;border-radius:10px;object-fit:cover;
@@ -531,7 +529,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
 
       <div class="card">
         <div class="card-title"><span class="ttl">💾 البيانات</span></div>
-        <button class="btn btn-primary btn-full mb-8" id="btnExport">📤 مشاركة نسخة</button>
+        <button class="btn btn-outline btn-full mb-8" id="btnExport">⬇️ تصدير JSON إلى الملفات</button>
         <button class="btn btn-outline btn-full mb-8" id="btnImport">⬆️ استيراد JSON</button>
         <button class="btn btn-danger btn-full" id="btnReset">↺ استعادة الافتراضي</button>
         <input type="file" id="importFile" accept="application/json" style="display:none">
@@ -541,7 +539,7 @@ input{font-family:inherit;border:none;outline:none;background:transparent;color:
         <div class="card-title"><span class="ttl">ℹ️ حول</span></div>
         <div style="font-size:13px;color:var(--text-muted);line-height:1.8">
           <div style="font-weight:900;color:var(--text);font-size:14px">كتيّب صيانة السيارة</div>
-          الإصدار 3.3 · ضغطة مطولة · صور محسّنة · مشاركة
+          الإصدار 3.4 · ضغطة مطولة · صور محسّنة · تصدير للملفات
         </div>
       </div>
     </section>
@@ -737,7 +735,7 @@ function activateAllLongPress(){
   bindAllLongPress('.rl-del', handler);
   bindAllLongPress('.custom-del', handler);
   bindAllLongPress('.del-btn', handler);
-  /* .img-del يعمل بنقر عادي — لا نضيفه هنا */
+  /* .img-del يعمل بنقر عادي */
 }
 
 /* ============ REGENERATE ============ */
@@ -1161,7 +1159,6 @@ function closeSheet(){
 }
 backdrop.addEventListener('click',closeSheet);
 
-/* Swipe-down to close */
 (function(){
   let startY=0,currentY=0,isDragging=false;
   function onStart(e){
@@ -1282,7 +1279,6 @@ function pickImageFrom(key, mode){
     );
     return;
   }
-  /* منتقي أندرويد الأصلي — يقبل كل الصيغ */
   const inp=document.createElement('input');
   inp.type='file';
   inp.accept='image/*';
@@ -1419,7 +1415,6 @@ function openFixedRef(type){
   if(type==='tires')return openTires();
 }
 
-/* ---- CATALOG ---- */
 function openCatalog(){
   const render=()=>S.catalog.map((c,i)=>`
     <div class="ref-item">
@@ -1475,7 +1470,6 @@ function commitCatalog(){
   wrap.querySelectorAll('[data-cl-value]').forEach(inp=>{const [i,j]=inp.dataset.clValue.split('-').map(Number);S.catalog[i].lines[j].v=inp.value;});
 }
 
-/* ---- WORKSHOPS ---- */
 function openWorkshops(){
   const render=()=>S.workshops.map((w,i)=>`
     <div class="ref-item">
@@ -1527,7 +1521,6 @@ function commitWorkshops(){
   wrap.querySelectorAll('[data-wl-value]').forEach(inp=>{const [i,j]=inp.dataset.wlValue.split('-').map(Number);S.workshops[i].lines[j].v=inp.value;});
 }
 
-/* ---- WARRANTY ---- */
 function openWarranty(){
   const labels={part:'القطعة',date:'تاريخ التركيب',odo:'العداد',until:'ينتهي في',shop:'الورشة',notes:'ملاحظات'};
   const render=()=>S.warranty.map((w,i)=>`
@@ -1568,7 +1561,6 @@ function commitWarranty(){
   });
 }
 
-/* ---- DOCS ---- */
 function openDocs(){
   const labels={ref:'الرقم / المرجع',issued:'تاريخ الإصدار',expires:'تاريخ الانتهاء',alert:'تنبيه قبل (يوم)'};
   const render=()=>S.docs.map((d,i)=>`
@@ -1610,7 +1602,6 @@ function commitDocs(){
   });
 }
 
-/* ---- EMERGENCY ---- */
 function openEmergency(){
   const render=()=>S.emergency.map((e,i)=>`
     <div class="ref-line">
@@ -1638,7 +1629,6 @@ function commitEmergency(){
   wrap.querySelectorAll('[data-em-value]').forEach(inp=>{S.emergency[Number(inp.dataset.emValue)].v=inp.value;});
 }
 
-/* ---- WARNINGS ---- */
 function openWarnings(){
   const render=()=>S.warnings.map((w,i)=>`
     <div class="ref-item">
@@ -1674,7 +1664,6 @@ function commitWarnings(){
   wrap.querySelectorAll('[data-wn-action]').forEach(inp=>{S.warnings[Number(inp.dataset.wnAction)].action=inp.value;});
 }
 
-/* ---- TIRES ---- */
 function openTires(){
   const render=()=>S.tires.map((t,i)=>`
     <div class="ref-line">
@@ -1702,7 +1691,6 @@ function commitTires(){
   wrap.querySelectorAll('[data-t-value]').forEach(inp=>{S.tires[Number(inp.dataset.tValue)].v=inp.value;});
 }
 
-/* ---- CUSTOM REF ---- */
 function openCustomRef(i){
   const isNew=i<0;
   const r=isNew?{icon:'📌',title:'',sub:'مرجع مخصص',fields:[{l:'',v:''}]}:S.references[i];
@@ -1844,7 +1832,7 @@ function generateHTML(summaryOnly){
       <div class="header-left">
         <h1>كتيّب السيارة</h1>
         <p>تقرير صيانة · ${fmtDate(now)}</p>
-        <p>الإصدار 3.3</p>
+        <p>الإصدار 3.4</p>
       </div>
       <div class="logo">🚗</div>
     </div>`;
@@ -2141,34 +2129,42 @@ setInterval(()=>{
 },3600*1000);
 
 /* ============ EXPORT/IMPORT/RESET ============ */
-async function exportJSON(){
+function exportJSON(){
   const json=JSON.stringify(S,null,2);
   const fileName='car-logbook-'+todayIso()+'.json';
-  if(navigator.share){
+  /* Cordova: احفظ في مجلد Documents */
+  if(typeof cordova!=='undefined' && cordova.file){
     try{
-      if(navigator.canShare){
-        try{
-          const file=new File([json],fileName,{type:'application/json'});
-          if(navigator.canShare({files:[file]})){
-            await navigator.share({files:[file],title:'كتيّب السيارة'});
-            toast('تمت المشاركة ✓','ok');
-            return;
-          }
-        }catch(fe){console.warn('file share failed',fe);}
-      }
-      await navigator.share({title:'كتيّب السيارة — نسخة احتياطية',text:json});
-      toast('تمت المشاركة ✓','ok');
+      const dir=cordova.file.externalRootDirectory+'Documents/';
+      window.resolveLocalFileSystemURL(dir,dirEntry=>{
+        dirEntry.getFile(fileName,{create:true},fe=>{
+          fe.createWriter(w=>{
+            w.onwriteend=()=>toast('تم الحفظ في Documents/'+fileName,'ok');
+            w.onerror=()=>toast('فشل الكتابة','err');
+            w.write(new Blob([json],{type:'application/json'}));
+          });
+        },()=>toast('تعذّر إنشاء الملف','err'));
+      },()=>{
+        /* fallback: تنزيل عادي */
+        downloadFile(json,fileName);
+      });
       return;
     }catch(e){
-      if(e.name==='AbortError')return;
-      console.warn('share failed',e);
+      console.warn('cordova export failed',e);
     }
   }
+  downloadFile(json,fileName);
+}
+function downloadFile(json,fileName){
   const blob=new Blob([json],{type:'application/json'});
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download=fileName;
-  a.click();URL.revokeObjectURL(a.href);
-  toast('تم التصدير ✓','ok');
+  a.href=URL.createObjectURL(blob);
+  a.download=fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('تم تصدير الملف إلى التنزيلات','ok');
 }
 document.getElementById('btnExport').addEventListener('click',exportJSON);
 document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('importFile').click());
